@@ -1,0 +1,16 @@
+{
+  "extends": ["airbnb", "plugin:prettier/recommended"],
+  "parser": "babel-eslint",
+  "env": {
+    "node": true,
+    "es6": true,
+    "browser": true,
+    "jest": true,
+  },
+  "rules": {
+    "react/forbid-prop-types": "off",
+    "no-underscore-dangle": "off",
+    "no-param-reassign": ["error", { "props": false }],
+    "react/jsx-wrap-multilines": ["error", { "declaration": false, "assignment": false }]
+  }
+}

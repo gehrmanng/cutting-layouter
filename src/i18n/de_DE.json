@@ -1,0 +1,27 @@
+{
+  "Header": {
+    "title": "Schnitt Layouter"
+  },
+  "ItemDataCard": {
+    "ItemDialog": {
+      "height": "Länge",
+      "material": "Material",
+      "name": "Name",
+      "quantity": "Anzahl",
+      "title": "Zuschnitt hinzufügen / bearbeiten",
+      "width": "Breite"
+    },
+    "ItemTable": {
+      "height": "Länge",
+      "material": "Material",
+      "name": "Name",
+      "quantity": "Anzahl",
+      "sheet": "Platte",
+      "width": "Breite"
+    },
+    "title": "Zuschnittdaten"
+  },
+  "SheetCard": {
+    "title": "Zuschnitt Layout"
+  }
+}

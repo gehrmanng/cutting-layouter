@@ -1,0 +1,27 @@
+{
+  "Header": {
+    "title": "Cutting layouter"
+  },
+  "ItemDataCard": {
+    "ItemDialog": {
+      "height": "Height",
+      "material": "Material",
+      "name": "Name",
+      "quantity": "Quantity",
+      "title": "Add / Edit item",
+      "width": "Width"
+    },
+    "ItemTable": {
+      "height": "Height",
+      "material": "Material",
+      "name": "Name",
+      "quantity": "Quantity",
+      "sheet": "Sheet",
+      "width": "Width"
+    },
+    "title": "Item data"
+  },
+  "SheetCard": {
+    "title": "Sheet layout"
+  }
+}
