@@ -1,15 +1,32 @@
 /* eslint-disable class-methods-use-this */
+// Library imports
 import _ from 'underscore';
 
+// Local data object imports
 import SheetArea from './SheetArea';
 
+/**
+ * A grouper for layout rects.
+ */
 export default class Grouper {
+  /**
+   * Constructor.
+   *
+   * @param {number} bladeWidth The blade width
+   */
   constructor(bladeWidth) {
     this._bladeWidth = bladeWidth;
   }
 
-  group(rects, toAddTo, isNested, canRotate = true) {
-    const { width: fullWidth, height: fullHeight } = toAddTo;
+  /**
+   * Group as many given rects as possible into the given sheet area.
+   *
+   * @param {Rect[]} rects All layout rects that should be grouped
+   * @param {SheetArea} sheetArea The sheet area where the rects should be grouped within
+   * @param {boolean} [canRotate=true] Flag indicating if rect rotation is allowed
+   */
+  group(rects, sheetArea, canRotate = true) {
+    const { width: fullWidth, height: fullHeight } = sheetArea;
     // Group all rects by height
     const byHeight = _.groupBy(rects, 'height');
 
@@ -21,7 +38,12 @@ export default class Grouper {
       const fullHeightRects = byHeight[fullHeight.toString()];
       const nonFullWidthRects = fullHeightRects.filter(r => r.width < fullWidth);
       hasFullHeightFullWidth = nonFullWidthRects.length !== fullHeightRects;
-      const remaining = this._addFullHeightRects(toAddTo, nonFullWidthRects, fullWidth, fullHeight);
+      const remaining = this._addFullHeightRects(
+        sheetArea,
+        nonFullWidthRects,
+        fullWidth,
+        fullHeight,
+      );
       notAdded.push(...remaining);
     }
 
@@ -31,7 +53,7 @@ export default class Grouper {
       .filter(h => h < fullHeight || (hasFullHeightFullWidth && h === fullHeight));
 
     if (!remainingHeights.length) {
-      return toAddTo;
+      return sheetArea;
     }
 
     const nonFullHeightRectsByHeight = {};
@@ -43,10 +65,10 @@ export default class Grouper {
       }
     });
 
-    const remainingRects = this._addMaxWidthGroups(toAddTo, nonFullHeightRectsByHeight);
+    const remainingRects = this._addMaxWidthGroups(sheetArea, nonFullHeightRectsByHeight);
 
     if (!remainingRects.length) {
-      return toAddTo;
+      return sheetArea;
     }
 
     const remainingGroups = this._groupByHeight(
@@ -55,16 +77,22 @@ export default class Grouper {
       fullHeight,
     );
 
-    this._addNonFullSizeRects(toAddTo, remainingGroups);
+    this._addNonFullSizeRects(sheetArea, remainingGroups);
 
     // Optimize the dimensions of each nested area
-    if (!isNested) {
-      this._optimizeNestedAreaDimensions(toAddTo);
+    if (!sheetArea.parent) {
+      this._optimizeNestedAreaDimensions(sheetArea);
     }
 
-    return toAddTo;
+    return sheetArea;
   }
 
+  /**
+   * Optimize the dimensions of all nested areas of the given sheet area
+   * by extending their width or height.
+   *
+   * @param {SheetArea} parent The parent sheet area
+   */
   _optimizeNestedAreaDimensions(parent) {
     const nestedByYPosition = _.groupBy(parent.nestedAreas, 'posY');
     const yPositions = Object.keys(nestedByYPosition)
@@ -100,10 +128,8 @@ export default class Grouper {
             nestedArea.extendWidth(remainingWidth + nestedArea.cuttingWidth.right);
             nestedArea.cuttingWidth = { right: 0 };
           } else {
-            const prevHeight = nestedArea.fullHeight;
             nestedArea.extendHeight(remainingHeight);
             nestedArea.cuttingWidth = { bottom: 0 };
-            // parent.updateGrid(posY + prevHeight, nestedArea.fullWidth, remainingHeight);
           }
 
           if (nestedArea.nestedAreas && nestedArea.nestedAreas.length) {
@@ -115,17 +141,17 @@ export default class Grouper {
   }
 
   /**
-   * Add all full height rects to the result as long as they don't exceed the maximum width.
+   * Add all full height rects to the given sheet area as long as they don't exceed the maximum width.
    *
-   * @param {object} toAddTo The object to add full height rects to
+   * @param {SheetArea} sheetArea The sheet area to add full height rects to
    * @param {Rect[]} rects The rects to be added
    */
-  _addFullHeightRects(toAddTo, rects) {
+  _addFullHeightRects(sheetArea, rects) {
     const notAdded = [];
     rects.forEach(rect => {
       // Add the rect if there is enough remaining width at the very first row
-      if (toAddTo.getRemainingWidth(0) >= rect.width) {
-        toAddTo.addRect(rect);
+      if (sheetArea.getRemainingWidth(0) >= rect.width) {
+        sheetArea.addRect(rect);
       } else {
         notAdded.push(rect);
       }
@@ -134,16 +160,22 @@ export default class Grouper {
     return notAdded;
   }
 
-  _groupByMaxWidths(rects, width, bladeWidth) {
+  /**
+   * Group all given rects bei their height to fit into the given maximum width.
+   *
+   * @param {Rect[]} rects The rects to be grouped
+   * @param {number} width The maximum available width
+   */
+  _groupByMaxWidths(rects, width) {
     const grouped = [];
     // eslint-disable-next-line no-restricted-syntax
     for (const rect of rects) {
       let added = false;
       // eslint-disable-next-line no-restricted-syntax
       for (const group of grouped) {
-        if (group.width + bladeWidth + rect.width <= width) {
+        if (group.width + this._bladeWidth + rect.width <= width) {
           group.rects.push(rect);
-          group.width += bladeWidth + rect.width;
+          group.width += this._bladeWidth + rect.width;
           if (rect.width > group.maxSingleWidth) {
             group.maxSingleWidth = rect.width;
           }
@@ -157,7 +189,6 @@ export default class Grouper {
     }
 
     grouped.sort((l, r) => r.width - l.width);
-    // console.log(grouped);
     return grouped;
   }
 
@@ -167,13 +198,12 @@ export default class Grouper {
    *
    * @param {object} rectsByHeight All available rects grouped by their height
    * @param {number} fullWidth The maximum available width
-   * @param {number} fullHeight The maximum available height
    */
   _groupByHeight(rectsByHeight, fullWidth) {
     const groupedByHeight = {};
 
     Object.entries(rectsByHeight).forEach(([key, rects]) => {
-      const groupedByWidth = this._groupByMaxWidths(rects, fullWidth, this._bladeWidth);
+      const groupedByWidth = this._groupByMaxWidths(rects, fullWidth);
       groupedByHeight[parseInt(key, 10)] = groupedByWidth;
     });
 
@@ -183,16 +213,16 @@ export default class Grouper {
   /**
    * Add all rects that fill the maximum remaining width.
    *
-   * @param {object} toAddTo The object to add full width rects to
-   * @param {object} groupedByHeight All available rects grouped by their height
+   * @param {SheetArea} sheetArea The object to add full width rects to
+   * @param {object} rectsByHeight All available rects grouped by their height
    */
-  _addMaxWidthGroups(toAddTo, rectsByHeight) {
+  _addMaxWidthGroups(sheetArea, rectsByHeight) {
     let notAdded = [];
 
-    let remainingWidth = toAddTo.getRemainingWidth(0);
+    let remainingWidth = sheetArea.getRemainingWidth(0);
     if (remainingWidth === 0) {
-      for (let i = 1; i < toAddTo.height; i += 1) {
-        remainingWidth = toAddTo.getRemainingWidth(i);
+      for (let i = 1; i < sheetArea.height; i += 1) {
+        remainingWidth = sheetArea.getRemainingWidth(i);
         if (remainingWidth > 0) {
           break;
         }
@@ -216,15 +246,15 @@ export default class Grouper {
       });
 
       groupsOfHeight.forEach(group => {
-        const coords = toAddTo.canAdd(group.width, height, true);
+        const coords = sheetArea.canAdd(group.width, height, true);
         if (coords) {
           const [, posY] = coords;
-          const localRemainingWidth = toAddTo.getRemainingWidth(posY);
+          const localRemainingWidth = sheetArea.getRemainingWidth(posY);
           if (Number.isNaN(localRemainingWidth)) {
-            toAddTo.extendHeight(height);
+            sheetArea.extendHeight(height);
           }
           group.rects.sort((l, r) => l.width - r.width);
-          group.rects.forEach(r => toAddTo.addRect(r));
+          group.rects.forEach(r => sheetArea.addRect(r));
         } else {
           notAdded = [...notAdded, ...group.rects];
         }
@@ -234,7 +264,14 @@ export default class Grouper {
     return notAdded;
   }
 
-  _addNonFullSizeRects(toAddTo, groupsByHeight) {
+  /**
+   * Add as many remaining rects that do neither fill the full height nor the full width.
+   *
+   * @param {SheetArea} sheetArea The sheet area to add new rects to
+   * @param {object} groupsByHeight All remaining rects grouped by their height and the maximum
+   *                                available width
+   */
+  _addNonFullSizeRects(sheetArea, groupsByHeight) {
     const sortedHeights = Object.keys(groupsByHeight)
       .map(h => parseInt(h, 10))
       .sort((l, r) => r - l);
@@ -251,27 +288,21 @@ export default class Grouper {
           width,
           maxSingleWidth,
           height,
-          toAddTo.nestedAreas,
+          sheetArea.nestedAreas,
         );
 
         if (
           existingNestedArea &&
           (existingNestedArea.width >= width || existingNestedArea.width >= maxSingleWidth)
         ) {
-          const prevFullHeight = existingNestedArea.fullHeight;
           if (existingNestedArea.extendHeight(height)) {
-            this.group(rects, existingNestedArea, true);
-            // toAddTo.updateGrid(
-            //   existingNestedArea.posY + prevFullHeight,
-            //   existingNestedArea.fullWidth,
-            //   existingNestedArea.fullHeight - prevFullHeight,
-            // );
+            this.group(rects, existingNestedArea);
           }
         } else {
-          let maxHeight = toAddTo.getMaximumHeight(width, height);
+          let maxHeight = sheetArea.getMaximumHeight(width, height);
           let useSingleWidth = false;
           if (maxHeight < height) {
-            maxHeight = toAddTo.getMaximumHeight(maxSingleWidth, height);
+            maxHeight = sheetArea.getMaximumHeight(maxSingleWidth, height);
             useSingleWidth = true;
           }
 
@@ -281,24 +312,33 @@ export default class Grouper {
               height,
               maxHeight,
               this._bladeWidth,
-              toAddTo,
+              sheetArea,
             );
-            this.group(rects, newNestedArea, true);
-            const [, posY] = toAddTo.canAdd(newNestedArea.fullWidth, newNestedArea.fullHeight);
+            this.group(rects, newNestedArea);
+            const [, posY] = sheetArea.canAdd(newNestedArea.fullWidth, newNestedArea.fullHeight);
             if (posY === false) {
               throw new Error('Something went wrong');
             }
 
-            if (toAddTo.height < posY) {
-              toAddTo.extendHeight(newNestedArea.fullHeight);
+            if (sheetArea.height < posY) {
+              sheetArea.extendHeight(newNestedArea.fullHeight);
             }
-            toAddTo.addNestedArea(newNestedArea);
+            sheetArea.addNestedArea(newNestedArea);
           }
         }
       });
     });
   }
 
+  /**
+   * Find a nested sheet area the can hold the given width and height.
+   *
+   * @param {number} width The required width
+   * @param {number} maxSingleWidth The maximum single rect width as an alternative to the full width
+   * @param {number} height The minimum required height
+   * @param {SheetArea[]} availableNestedAreas All available nested areas
+   * @param {boolean} sameWidthOnly Flag indicating if a nested area with the exact given width needs to be returned
+   */
   _findNestedArea(width, maxSingleWidth, height, availableNestedAreas, sameWidthOnly) {
     if (!availableNestedAreas || !availableNestedAreas.length) {
       return undefined;

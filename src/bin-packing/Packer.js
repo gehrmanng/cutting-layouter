@@ -19,7 +19,8 @@ export default class Packer {
    * Pack the given items into matching bins.
    *
    * @param {Item[]} items - The items to pack
-   * @returns {Bin[]} A number of resulting bins
+   * @param {Material[]} materials - All available layout materials
+   * @returns {Sheet} All packed layout sheets
    */
   pack(items, materials) {
     const itemsByMaterial = _.groupBy(items, 'material');
@@ -37,6 +38,11 @@ export default class Packer {
     return this._sheets;
   }
 
+  /**
+   *
+   * @param {Material} material The current sheet material
+   * @param {Item[]} items All layout items with the given sheet material
+   */
   _packByMaterial(material, items) {
     const sheet = new Sheet(this._sheetCounter, material.width, material.height, items, 5);
     sheet.pack();

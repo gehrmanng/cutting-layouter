@@ -1,11 +1,25 @@
 /* eslint-disable no-restricted-syntax */
+// Library imports
 import uuid from 'uuid';
 
+// Local data object imports
 import Rect from './Rect';
 import Grouper from './Grouper';
 import SheetArea from './SheetArea';
 
+/**
+ * A layout sheet.
+ */
 export default class Sheet {
+  /**
+   * Constructor.
+   *
+   * @param {number} sheetNumber The sheet counting number
+   * @param {number} width The sheet width
+   * @param {number} height The sheet height
+   * @param {Item[]} items All items that should be added to this sheet
+   * @param {number} bladeWidth The blade width
+   */
   constructor(sheetNumber, width, height, items, bladeWidth) {
     this._id = uuid();
     this._sheetNumber = sheetNumber;
@@ -15,6 +29,11 @@ export default class Sheet {
     this._bladeWidth = bladeWidth;
   }
 
+  /**
+   * Pack as many layout items as possible into this sheet.
+   *
+   * @returns {Item[]} All remaining items
+   */
   pack() {
     const allRects = [];
     const notAddedItems = this._items.filter(i => i.height > this._height || i.width > this._width);
@@ -31,6 +50,10 @@ export default class Sheet {
 
     return notAddedItems;
   }
+
+  /** *************************** */
+  /** **** Getters & Setters **** */
+  /** *************************** */
 
   get height() {
     return this._height;

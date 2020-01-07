@@ -1,3 +1,4 @@
+// Library imports
 import uuid from 'uuid';
 
 /**
@@ -21,9 +22,9 @@ export default class Rect {
    * @param {string} itemId - The id of the rect containing item
    * @param {number} width - The rectangle width
    * @param {number} height - The rectangle height
-   * @param {number} x - The x position, defaults to 0
-   * @param {number} y - The y position, defaults to 0
-   * @param {string} name - The rectangle name
+   * @param {number} [x=0] - The x position, defaults to 0
+   * @param {number} [y=0] - The y position, defaults to 0
+   * @param {string} [name=''] - The rectangle name
    */
   constructor(itemId, width, height, x = 0, y = 0, name = '') {
     this._id = uuid();
@@ -40,26 +41,6 @@ export default class Rect {
       bottom: 0,
       left: 0,
     };
-  }
-
-  /**
-   * Update the rectangle dimensions and position according to the given offsets.
-   *
-   * @param {number} offsetX - The x offset
-   * @param {number} offsetY - The y offset
-   */
-  update(offsetX, offsetY) {
-    if (offsetX) {
-      this._width -= offsetX;
-      this._posX += offsetX;
-    }
-
-    if (offsetY) {
-      this._height -= offsetY;
-      this._posY += offsetY;
-    }
-
-    this._area = this._width * this._height;
   }
 
   /** *************************** */

@@ -1,7 +1,20 @@
+// Library imports
 import _ from 'underscore';
 import uuid from 'uuid';
 
+/**
+ * An area within a layout sheet.
+ */
 export default class SheetArea {
+  /**
+   * Constructor.
+   *
+   * @param {number} width The area width
+   * @param {number} height The area height
+   * @param {number} maxHeight The maximum height if this area needs to be extended
+   * @param {number} bladeWidth The blade width
+   * @param {SheetArea} [parent] The parent of this sheet area
+   */
   constructor(width, height, maxHeight, bladeWidth, parent) {
     this._id = uuid();
     this._bladeWidth = bladeWidth;
@@ -22,6 +35,11 @@ export default class SheetArea {
     this._grid = new Array(height).fill(0);
   }
 
+  /**
+   * Add a new nested sheet area.
+   *
+   * @param {SheetArea} newNestedArea The new nested sheet area
+   */
   addNestedArea(newNestedArea) {
     const [posX, posY] = this._getGridPosition(newNestedArea.fullWidth, newNestedArea.fullHeight);
     newNestedArea.posX = posX;
@@ -31,6 +49,11 @@ export default class SheetArea {
     this.updateGrid(posY, newNestedArea.posX + newNestedArea.fullWidth, newNestedArea.fullHeight);
   }
 
+  /**
+   * Add a new rect to this sheet area.
+   *
+   * @param {Rect} newRect The rect to be added
+   */
   addRect(newRect) {
     const [posX, posY] = this._getGridPosition(newRect.fullWidth, newRect.fullHeight);
     newRect.posX = posX;
@@ -40,6 +63,14 @@ export default class SheetArea {
     this.updateGrid(posY, newRect.posX + newRect.fullWidth, newRect.fullHeight);
   }
 
+  /**
+   * Check if a rect or sheet area with the given width and height can be added to this sheet area.
+   *
+   * @param {number} width The required width
+   * @param {number} height The required height
+   * @param {boolean} fillRemaining Flag indicating if the given width should fill all remaining width
+   * @returns {boolean|number[]} The x and y coordinates if the required space is available, false otherwise
+   */
   canAdd(width, height, fillRemaining) {
     const [posX, posY] = this._getGridPosition(width, height);
 
@@ -48,6 +79,12 @@ export default class SheetArea {
     return canAdd ? [posX, posY] : false;
   }
 
+  /**
+   * Extend the height of this sheet area by the given value.
+   *
+   * @param {number} height The extension height
+   * @returns {boolean} True if the height could be extended, false otherwise
+   */
   extendHeight(height) {
     if (this._height + height > this._maxHeight) {
       return false;
@@ -106,6 +143,11 @@ export default class SheetArea {
     return true;
   }
 
+  /**
+   * Extend the width of this sheet area by the given value.
+   *
+   * @param {number} width The extension width
+   */
   extendWidth(width) {
     this._width += width;
 
@@ -130,6 +172,13 @@ export default class SheetArea {
     }
   }
 
+  /**
+   * Get the maximum height that a nested sheet area with the given width and height could be extended to.
+   *
+   * @param {number} width The required width
+   * @param {number} height The required height
+   * @returns {number} The maximum height or -1 if there is not enough space for the given width and height
+   */
   getMaximumHeight(width, height) {
     const [posX, posY] = this._getGridPosition(width, height);
     if (posX >= 0 && posY >= 0) {
@@ -139,10 +188,20 @@ export default class SheetArea {
     return -1;
   }
 
+  /**
+   * Get the remaining width at the given height.
+   *
+   * @param {number} atHeight The height to get the remaining width for
+   * @returns {number} The remaining width
+   */
   getRemainingWidth(atHeight) {
     const remaining = this._width - this._grid[atHeight];
     return remaining;
   }
+
+  /** *************************** */
+  /** **** Getters & Setters **** */
+  /** *************************** */
 
   get maxHeight() {
     return this._maxHeight;
@@ -182,6 +241,10 @@ export default class SheetArea {
 
   get nestedAreas() {
     return this._nestedAreas;
+  }
+
+  get parent() {
+    return this._parent;
   }
 
   get posX() {
