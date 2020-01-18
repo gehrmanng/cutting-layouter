@@ -78,13 +78,13 @@ const ItemTable = ({ onEdit, items, materials, dispatch }) => {
           <TableCell>
             <I18n i18nKey="ItemDataCard.ItemTable.name" />
           </TableCell>
-          <TableCell>
+          <TableCell align="right">
             <I18n i18nKey="ItemDataCard.ItemTable.width" />
           </TableCell>
-          <TableCell>
+          <TableCell align="right">
             <I18n i18nKey="ItemDataCard.ItemTable.height" />
           </TableCell>
-          <TableCell>
+          <TableCell align="center">
             <I18n i18nKey="ItemDataCard.ItemTable.quantity" />
           </TableCell>
           <TableCell>
@@ -102,9 +102,15 @@ const ItemTable = ({ onEdit, items, materials, dispatch }) => {
             <TableCell component="th" scope="row">
               {item._name}
             </TableCell>
-            <TableCell>{item.width}</TableCell>
-            <TableCell>{item.height}</TableCell>
-            <TableCell>{item.quantity}</TableCell>
+            <TableCell align="right">
+              {item.width}
+              <I18n i18nKey="global.unit.mm" />
+            </TableCell>
+            <TableCell align="right">
+              {item.height}
+              <I18n i18nKey="global.unit.mm" />
+            </TableCell>
+            <TableCell align="center">{item.quantity}</TableCell>
             <TableCell>{getMaterial(item)}</TableCell>
             <TableCell />
             <TableCell align="right" className={classes.actionColumn}>

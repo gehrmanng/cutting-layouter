@@ -21,7 +21,27 @@
     },
     "title": "Zuschnittdaten"
   },
+  "MaterialDataCard": {
+    "MaterialTable": {
+      "grain": "Maserung",
+      "height": "Länge",
+      "name": "Name",
+      "thickness": "Stärke",
+      "width": "Breite"
+    },
+    "title": "Materialien"
+  },
   "SheetCard": {
     "title": "Zuschnitt Layout"
+  },
+  "global": {
+    "unit": {
+      "mm": " mm"
+    }
+  },
+  "navigation": {
+    "layout": "Layout",
+    "materials": "Materialien",
+    "settings": "Einstellungen"
   }
 }

@@ -18,10 +18,6 @@ const useStyles = makeStyles({
     width: '100%',
     overflowX: 'auto',
   },
-  actionColumn: {
-    width: 130,
-  },
-  table: {},
 });
 
 /**
@@ -67,7 +63,7 @@ const ItemDataCard = ({ dispatch }) => {
   };
 
   return (
-    <div>
+    <>
       <Card className={classes.root}>
         <CardHeader
           action={
@@ -86,7 +82,7 @@ const ItemDataCard = ({ dispatch }) => {
         </CardContent>
       </Card>
       <ItemDialog onClose={handleCloseDialog} open={dialogOpen} item={selectedItem} />
-    </div>
+    </>
   );
 };
 

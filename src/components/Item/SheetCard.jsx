@@ -1,8 +1,16 @@
 // Library imports
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Card, CardContent, CardHeader, Icon, IconButton, makeStyles } from '@material-ui/core';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  Icon,
+  IconButton,
+  makeStyles,
+  useTheme,
+} from '@material-ui/core';
 import I18n from '@gehrmanng/react-i18n';
 
 // Local component imports
@@ -15,6 +23,7 @@ import { Item, Material, Packer } from '../../bin-packing';
 const useStyles = makeStyles(theme => ({
   root: {
     width: '100%',
+    maxWidth: '100%',
     overflowX: 'auto',
     marginTop: theme.spacing(3),
   },
@@ -29,7 +38,10 @@ const useStyles = makeStyles(theme => ({
  */
 const SheetCard = ({ items, materials }) => {
   const classes = useStyles();
+  const theme = useTheme();
+
   const [sheets, setSheets] = useState([]);
+  const cardRef = useRef(null);
 
   /**
    * Side effect to pack the available layout items.
@@ -38,10 +50,11 @@ const SheetCard = ({ items, materials }) => {
     const packer = new Packer();
     const packedSheets = packer.pack(items, materials);
     setSheets(packedSheets);
+    console.log(cardRef.current.offsetWidth - theme.spacing(4));
   }, [items]);
 
   return (
-    <Card className={classes.root}>
+    <Card className={classes.root} ref={cardRef}>
       <CardHeader
         action={
           <IconButton aria-label="settings">
@@ -56,7 +69,11 @@ const SheetCard = ({ items, materials }) => {
       />
       <CardContent>
         {sheets.map(sheet => (
-          <Sheet key={sheet.id} sheet={sheet} />
+          <Sheet
+            key={sheet.id}
+            sheet={sheet}
+            maxWidth={cardRef.current.offsetWidth - theme.spacing(4) - 2}
+          />
         ))}
       </CardContent>
     </Card>

@@ -29,23 +29,19 @@ const useStyles = makeStyles(theme => ({
  * @param {Bin[]} bins - All layout bins to be rendered
  * @returns {JSX} The component markup
  */
-const Sheet = ({ sheet }) => {
+const Sheet = ({ maxWidth, sheet }) => {
   const classes = useStyles();
   const [scale, setScale] = useState(1);
-  const paperRef = useRef(null);
 
   /**
    * Side effect that calculates the zoom scale.
    */
   useEffect(() => {
-    const paper = paperRef.current;
-    if (!paper || !sheet) {
+    if (!sheet) {
       return;
     }
 
-    const width = paper.offsetWidth;
-
-    setScale(Math.min(1, width / sheet.width));
+    setScale(Math.min(1, maxWidth / sheet.width));
   }, [sheet]);
 
   if (!sheet) {
@@ -59,7 +55,7 @@ const Sheet = ({ sheet }) => {
   };
 
   return (
-    <div ref={paperRef} className={classes.root}>
+    <div className={classes.root}>
       <div className={classes.container} style={style} data-scale={scale}>
         <ItemContainer sheetArea={sheet.sheetArea} scale={scale} />
       </div>
@@ -69,6 +65,7 @@ const Sheet = ({ sheet }) => {
 
 // Component property types
 Sheet.propTypes = {
+  maxWidth: PropTypes.number.isRequired,
   sheet: PropTypes.instanceOf(PackedSheet),
 };
 

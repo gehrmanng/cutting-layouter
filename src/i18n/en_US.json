@@ -21,7 +21,27 @@
     },
     "title": "Item data"
   },
+  "MaterialDataCard": {
+    "MaterialTable": {
+      "grain": "Has grain",
+      "height": "Height",
+      "name": "Name",
+      "thickness": "Thickness",
+      "width": "Width"
+    },
+    "title": "Materials"
+  },
   "SheetCard": {
     "title": "Sheet layout"
+  },
+  "global": {
+    "unit": {
+      "mm": " mm"
+    }
+  },
+  "navigation": {
+    "layout": "Layout",
+    "materials": "Materials",
+    "settings": "Settings"
   }
 }

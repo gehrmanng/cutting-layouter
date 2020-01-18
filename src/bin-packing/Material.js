@@ -10,13 +10,15 @@ export default class Material {
    * @param {number} width - The material width
    * @param {number} height - The material height
    * @param {number} thickness - The material thickness
+   * @param {bool} hasGrain - Flag indicating if this material as a defined grain
    */
-  constructor(id, name, width, height, thickness) {
+  constructor(id, name, width, height, thickness, hasGrain) {
     this._id = id;
     this._name = name;
     this._width = width;
     this._height = height;
     this._thickness = thickness;
+    this._hasGrain = hasGrain;
   }
 
   /** *************************** */
@@ -33,6 +35,10 @@ export default class Material {
 
   get width() {
     return this._width;
+  }
+
+  get hasGrain() {
+    return this._hasGrain;
   }
 
   get height() {

@@ -2,6 +2,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
+import { BrowserRouter } from 'react-router-dom';
 import { I18nProvider } from '@gehrmanng/react-i18n';
 
 // Local component imports
@@ -19,7 +20,9 @@ import localizations from './i18n';
 ReactDOM.render(
   <Provider store={store}>
     <I18nProvider defaultLanguage="en_US" translations={localizations}>
-      <App />
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
     </I18nProvider>
   </Provider>,
   document.getElementById('root'),
