@@ -47,6 +47,7 @@ const ItemContainer = ({ sheetArea, scale }) => {
       style={style}
       data-width={sheetArea.width}
       data-height={sheetArea.height}
+      data-fullheight={sheetArea.fullHeight}
       data-posx={sheetArea.posX}
       data-posy={sheetArea.posY}>
       {sheetArea.rects &&

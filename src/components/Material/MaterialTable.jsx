@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import {
@@ -12,12 +12,16 @@ import {
   makeStyles,
 } from '@material-ui/core';
 import I18n from '@gehrmanng/react-i18n';
+import _ from 'underscore';
+
+// Local Redux action imports
+import { removeMaterial } from '../../actions/actionTypes';
 
 // Local data object imports
-import { Material } from '../../bin-packing';
+import { Item, Material } from '../../bin-packing';
 
 // Styling definitions
-const useStyles = makeStyles({
+const useStyles = makeStyles(theme => ({
   root: {
     width: '100%',
     overflowX: 'auto',
@@ -25,15 +29,27 @@ const useStyles = makeStyles({
   actionColumn: {
     width: 130,
   },
-});
+  buttonSpacer: {
+    width: theme.spacing(6),
+    height: theme.spacing(6),
+    display: 'inline-flex',
+    verticalAlign: 'middle',
+  },
+}));
 
-const MaterialTable = ({ onEdit, materials, dispatch }) => {
+const MaterialTable = ({ onEdit, materials, items, dispatch }) => {
   const classes = useStyles();
 
-  const handleDelete = id => () => {};
+  const handleDelete = id => () => {
+    dispatch(removeMaterial(id));
+  };
 
   const handleEdit = material => () => {
     onEdit(material);
+  };
+
+  const checkMaterialIsUsed = material => {
+    return items.filter(i => i.material === material.id).length;
   };
 
   return (
@@ -83,9 +99,13 @@ const MaterialTable = ({ onEdit, materials, dispatch }) => {
               <IconButton onClick={handleEdit(material)}>
                 <Icon>edit</Icon>
               </IconButton>
-              <IconButton onClick={handleDelete(material.id)}>
-                <Icon>delete</Icon>
-              </IconButton>
+              {checkMaterialIsUsed(material) ? (
+                <div className={classes.buttonSpacer} />
+              ) : (
+                <IconButton onClick={handleDelete(material.id)}>
+                  <Icon>delete</Icon>
+                </IconButton>
+              )}
             </TableCell>
           </TableRow>
         ))}
@@ -99,11 +119,13 @@ MaterialTable.propTypes = {
   onEdit: PropTypes.func.isRequired,
   dispatch: PropTypes.func.isRequired,
   materials: PropTypes.arrayOf(PropTypes.instanceOf(Material)),
+  items: PropTypes.arrayOf(PropTypes.instanceOf(Item)),
 };
 
 // Default property values
 MaterialTable.defaultProps = {
   materials: [],
+  items: [],
 };
 
 /**

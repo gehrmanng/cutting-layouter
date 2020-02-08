@@ -50,7 +50,6 @@ const SheetCard = ({ items, materials }) => {
     const packer = new Packer();
     const packedSheets = packer.pack(items, materials);
     setSheets(packedSheets);
-    console.log(cardRef.current.offsetWidth - theme.spacing(4));
   }, [items]);
 
   return (

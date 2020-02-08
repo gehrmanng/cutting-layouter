@@ -42,7 +42,7 @@ const SideNavigation = () => {
         ['category', '/materials', 'materials'],
         ['settings', '/settings', 'settings'],
       ].map(([icon, target, i18nKey]) => (
-        <Tooltip title={<I18n i18nKey={`navigation.${i18nKey}`} />}>
+        <Tooltip key={target} title={<I18n i18nKey={`navigation.${i18nKey}`} />}>
           <IconButton
             key={target}
             className={classes.button}

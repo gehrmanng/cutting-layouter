@@ -22,6 +22,14 @@
     "title": "Item data"
   },
   "MaterialDataCard": {
+    "MaterialDialog": {
+      "hasGrain": "Has grain",
+      "height": "Height",
+      "name": "Name",
+      "thickness": "Thickness",
+      "title": "Add / Edit material",
+      "width": "Width"
+    },
     "MaterialTable": {
       "grain": "Has grain",
       "height": "Height",

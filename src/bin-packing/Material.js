@@ -1,3 +1,6 @@
+// Library imports
+import uuid from 'uuid';
+
 /**
  * A layout material.
  */
@@ -13,12 +16,13 @@ export default class Material {
    * @param {bool} hasGrain - Flag indicating if this material as a defined grain
    */
   constructor(id, name, width, height, thickness, hasGrain) {
-    this._id = id;
+    this._id = id || uuid();
     this._name = name;
     this._width = width;
     this._height = height;
     this._thickness = thickness;
     this._hasGrain = hasGrain;
+    this._isUsed = false;
   }
 
   /** *************************** */
@@ -47,5 +51,13 @@ export default class Material {
 
   get thickness() {
     return this._thickness;
+  }
+
+  get isUsed() {
+    return this._isUsed;
+  }
+
+  set isUsed(isUsed) {
+    this._isUsed = isUsed;
   }
 }

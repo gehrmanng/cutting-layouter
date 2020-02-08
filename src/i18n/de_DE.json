@@ -4,30 +4,38 @@
   },
   "ItemDataCard": {
     "ItemDialog": {
-      "height": "Länge",
+      "height": "Breite",
       "material": "Material",
       "name": "Name",
       "quantity": "Anzahl",
       "title": "Zuschnitt hinzufügen / bearbeiten",
-      "width": "Breite"
+      "width": "Länge"
     },
     "ItemTable": {
-      "height": "Länge",
+      "height": "Breite",
       "material": "Material",
       "name": "Name",
       "quantity": "Anzahl",
       "sheet": "Platte",
-      "width": "Breite"
+      "width": "Länge"
     },
     "title": "Zuschnittdaten"
   },
   "MaterialDataCard": {
-    "MaterialTable": {
-      "grain": "Maserung",
-      "height": "Länge",
+    "MaterialDialog": {
+      "hasGrain": "Maserung vorhanden",
+      "height": "Breite",
       "name": "Name",
       "thickness": "Stärke",
-      "width": "Breite"
+      "title": "Material hinzufügen / bearbeiten",
+      "width": "Länge"
+    },
+    "MaterialTable": {
+      "grain": "Maserung",
+      "height": "Breite",
+      "name": "Name",
+      "thickness": "Stärke",
+      "width": "Länge"
     },
     "title": "Materialien"
   },
