@@ -26,6 +26,21 @@ export default class Item {
     this._material = material;
   }
 
+  serialize() {
+    return {
+      id: this._id,
+      name: this._name,
+      width: this._dimensions.width,
+      height: this._dimensions.height,
+      quantity: this._quantity,
+      material: this._material,
+    };
+  }
+
+  static deserialize(obj) {
+    return new Item(obj.name, obj.width, obj.height, obj.quantity, obj.material, obj.id);
+  }
+
   /** *************************** */
   /** **** Getters & Setters **** */
   /** *************************** */

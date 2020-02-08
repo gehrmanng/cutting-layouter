@@ -22,7 +22,21 @@ export default class Material {
     this._height = height;
     this._thickness = thickness;
     this._hasGrain = hasGrain;
-    this._isUsed = false;
+  }
+
+  serialize() {
+    return {
+      id: this._id,
+      name: this._name,
+      width: this._width,
+      height: this._height,
+      thickness: this._thickness,
+      hasGrain: this._hasGrain,
+    };
+  }
+
+  static deserialize(obj) {
+    return new Material(obj.id, obj.name, obj.width, obj.height, obj.thickness, obj.hasGrain);
   }
 
   /** *************************** */
@@ -51,13 +65,5 @@ export default class Material {
 
   get thickness() {
     return this._thickness;
-  }
-
-  get isUsed() {
-    return this._isUsed;
-  }
-
-  set isUsed(isUsed) {
-    this._isUsed = isUsed;
   }
 }
