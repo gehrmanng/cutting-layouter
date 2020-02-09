@@ -1,16 +1,6 @@
 // Library imports
 import React, { useContext } from 'react';
-import {
-  AppBar,
-  Button,
-  ButtonGroup,
-  Icon,
-  IconButton,
-  Toolbar,
-  Typography,
-  makeStyles,
-} from '@material-ui/core';
-import { Link } from 'react-router-dom';
+import { AppBar, Button, ButtonGroup, Toolbar, Typography, makeStyles } from '@material-ui/core';
 import I18n, { I18nContext, TYPES } from '@gehrmanng/react-i18n';
 
 // Styling definitions

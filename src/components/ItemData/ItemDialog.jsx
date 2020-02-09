@@ -25,6 +25,7 @@ const initialItem = {
   width: 0,
   height: 0,
   quantity: 1,
+  material: '',
 };
 
 /**
@@ -48,10 +49,10 @@ const ItemDialog = ({ onClose, open, item, materials }) => {
 
     setValues({
       name: item.name,
-      width: parseInt(item.width, 10),
-      height: parseInt(item.height, 10),
-      quantity: parseInt(item.quantity, 10),
-      material: parseInt(item.material, 10),
+      width: item.width,
+      height: item.height,
+      quantity: item.quantity,
+      material: item.material,
     });
   }, [item]);
 

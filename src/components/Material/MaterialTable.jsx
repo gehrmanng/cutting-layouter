@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import {
@@ -12,7 +12,6 @@ import {
   makeStyles,
 } from '@material-ui/core';
 import I18n from '@gehrmanng/react-i18n';
-import _ from 'underscore';
 
 // Local Redux action imports
 import { removeMaterial } from '../../actions/actionTypes';
