@@ -49,8 +49,8 @@ const Sheet = ({ maxWidth, sheet }) => {
   }
 
   const style = {
-    width: sheet.width * scale,
-    height: sheet.height * scale,
+    width: Math.round(sheet.width * scale),
+    height: Math.round(sheet.height * scale),
     position: 'relative',
   };
 

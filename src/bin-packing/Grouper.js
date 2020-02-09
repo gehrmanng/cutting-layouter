@@ -71,13 +71,25 @@ export default class Grouper {
       return sheetArea;
     }
 
-    const remainingGroups = this._groupByHeight(
+    let remainingPosY = -1;
+    let remainingWidth;
+    for (let i = 0; i < fullHeight; i += 1) {
+      remainingWidth = sheetArea.getRemainingWidth(i);
+      if (remainingWidth > 0) {
+        remainingPosY = i;
+        break;
+      }
+    }
+    if (remainingPosY < 0) {
+      return sheetArea;
+    }
+
+    const groupedByHeight = this._groupByHeight(
       _.groupBy(remainingRects, 'height'),
-      fullWidth,
-      fullHeight,
+      remainingWidth,
     );
 
-    this._addNonFullSizeRects(sheetArea, remainingGroups);
+    this._addNonFullSizeRects(sheetArea, [].concat(...Object.values(groupedByHeight)));
 
     // Optimize the dimensions of each nested area
     if (!sheetArea.parent) {
@@ -117,8 +129,7 @@ export default class Grouper {
         }
       } else {
         nestedAreas.forEach(nestedArea => {
-          const remainingHeight =
-            parent.height - posY - nestedArea.height - nestedArea.cuttingWidth.bottom;
+          const remainingHeight = nestedArea.maxHeight - nestedArea.fullHeight;
           if (
             nestedArea.posX === maxPosX &&
             remainingWidth > 0 &&
@@ -127,7 +138,7 @@ export default class Grouper {
           ) {
             nestedArea.extendWidth(remainingWidth + nestedArea.cuttingWidth.right);
             nestedArea.cuttingWidth = { right: 0 };
-          } else {
+          } else if (remainingHeight > 0) {
             nestedArea.extendHeight(remainingHeight);
             nestedArea.cuttingWidth = { bottom: 0 };
           }
@@ -271,62 +282,72 @@ export default class Grouper {
    * @param {object} groupsByHeight All remaining rects grouped by their height and the maximum
    *                                available width
    */
-  _addNonFullSizeRects(sheetArea, groupsByHeight) {
-    const sortedHeights = Object.keys(groupsByHeight)
-      .map(h => parseInt(h, 10))
-      .sort((l, r) => r - l);
+  _addNonFullSizeRects(sheetArea, groupsByWidth) {
+    groupsByWidth.sort((l, r) => {
+      const groupArea1 = l.width * l.rects[0].height;
+      const groupArea2 = r.width * r.rects[0].height;
 
-    sortedHeights.forEach(height => {
-      const groupsOfHeight = groupsByHeight[height];
+      let result = groupArea2 - groupArea1;
 
-      groupsOfHeight.sort((l, r) => r.width - l.width);
+      if (result === 0) {
+        result = r.width - l.width;
+      }
 
-      groupsOfHeight.forEach(group => {
-        const { width, maxSingleWidth, rects } = group;
+      if (result === 0) {
+        result = r.rects[0].height - l.rects[0].height;
+      }
 
-        const existingNestedArea = this._findNestedArea(
-          width,
-          maxSingleWidth,
-          height,
-          sheetArea.nestedAreas,
-        );
+      return result;
+    });
 
-        if (
-          existingNestedArea &&
-          (existingNestedArea.width >= width || existingNestedArea.width >= maxSingleWidth)
-        ) {
-          if (existingNestedArea.extendHeight(height)) {
-            this.group(rects, existingNestedArea);
-          }
-        } else {
-          let maxHeight = sheetArea.getMaximumHeight(width, height);
-          let useSingleWidth = false;
-          if (maxHeight < height) {
-            maxHeight = sheetArea.getMaximumHeight(maxSingleWidth, height);
-            useSingleWidth = true;
-          }
+    groupsByWidth.forEach(group => {
+      const { width, maxSingleWidth, rects } = group;
+      const { height } = rects[0];
 
-          if (maxHeight >= height) {
-            const newNestedArea = new SheetArea(
-              useSingleWidth ? maxSingleWidth : width,
-              height,
-              maxHeight,
-              this._bladeWidth,
-              sheetArea,
-            );
-            this.group(rects, newNestedArea);
-            const [, posY] = sheetArea.canAdd(newNestedArea.fullWidth, newNestedArea.fullHeight);
-            if (posY === false) {
-              throw new Error('Something went wrong');
-            }
+      const existingNestedArea = this._findNestedArea(
+        width,
+        maxSingleWidth,
+        height,
+        sheetArea.nestedAreas,
+      );
 
-            if (sheetArea.height < posY) {
-              sheetArea.extendHeight(newNestedArea.fullHeight);
-            }
-            sheetArea.addNestedArea(newNestedArea);
-          }
+      if (
+        existingNestedArea &&
+        (existingNestedArea.width >= width || existingNestedArea.width >= maxSingleWidth)
+      ) {
+        if (existingNestedArea.extendHeight(height)) {
+          this.group(rects, existingNestedArea);
         }
-      });
+      } else {
+        let maxHeight = sheetArea.getMaximumHeight(width, height);
+        let useSingleWidth = false;
+        if (maxHeight < height) {
+          maxHeight = sheetArea.getMaximumHeight(maxSingleWidth, height);
+          useSingleWidth = true;
+        }
+
+        if (maxHeight >= height) {
+          const newNestedArea = new SheetArea(
+            useSingleWidth ? maxSingleWidth : width,
+            height,
+            maxHeight,
+            this._bladeWidth,
+            sheetArea,
+          );
+          this.group(rects, newNestedArea);
+
+          const [, posY] = sheetArea.canAdd(newNestedArea.fullWidth, newNestedArea.fullHeight);
+
+          if (posY === false) {
+            throw new Error('Something went wrong');
+          }
+
+          if (sheetArea.height < posY) {
+            sheetArea.extendHeight(newNestedArea.fullHeight);
+          }
+          sheetArea.addNestedArea(newNestedArea);
+        }
+      }
     });
   }
 

@@ -36,10 +36,10 @@ const Item = ({ rect, scale }) => {
   }
 
   const style = {
-    width: rect.width * scale,
-    height: rect.height * scale,
-    top: rect.posY * scale,
-    left: rect.posX * scale,
+    width: Math.round(rect.width * scale),
+    height: Math.round(rect.height * scale),
+    top: Math.round(rect.posY * scale),
+    left: Math.round(rect.posX * scale),
     borderTop: `${Math.round(rect.cuttingWidth.top * scale)}px solid black`,
     borderRight: `${Math.round(rect.cuttingWidth.right * scale)}px solid black`,
     borderBottom: `${Math.round(rect.cuttingWidth.bottom * scale)}px solid black`,

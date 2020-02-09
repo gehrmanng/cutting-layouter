@@ -439,17 +439,17 @@ describe('Grouper', () => {
     ]);
 
     const nestedArea = grouped.nestedAreas[0];
-    checkArea(nestedArea, 1700, 1250, 0, 0, 0, bladeWidth, 0, 0, 4, 0);
+    checkArea(nestedArea, 1700, 1250, 0, 0, 0, bladeWidth, bladeWidth, 0, 4, 0);
     checkRemainingWidth(nestedArea, [
       [0, 0],
       [1000, 0],
-      [1249, 0],
+      [1244, 0],
     ]);
 
     checkRect(nestedArea.rects[0], 'A', 0, 0, 0, bladeWidth, bladeWidth, 0);
     checkRect(nestedArea.rects[1], 'A', 850, 0, 0, 0, bladeWidth, 0);
-    checkRect(nestedArea.rects[2], 'A', 0, 625, 0, bladeWidth, bladeWidth, 0);
-    checkRect(nestedArea.rects[3], 'A', 850, 625, 0, 0, bladeWidth, 0);
+    checkRect(nestedArea.rects[2], 'A', 0, 625, 0, bladeWidth, 0, 0);
+    checkRect(nestedArea.rects[3], 'A', 850, 625, 0, 0, 0, 0);
   });
 
   it('should pack four rects in two rows with eight rects beside them', () => {
@@ -479,17 +479,17 @@ describe('Grouper', () => {
     ]);
 
     const nestedArea = grouped.nestedAreas[0];
-    checkArea(nestedArea, 1700, 1250, 0, 0, 0, bladeWidth, 0, 0, 4, 0);
+    checkArea(nestedArea, 1700, 1250, 0, 0, 0, bladeWidth, bladeWidth, 0, 4, 0);
     checkRemainingWidth(nestedArea, [
       [0, 0],
       [1000, 0],
-      [1249, 0],
+      [1244, 0],
     ]);
 
     checkRect(nestedArea.rects[0], 'C', 0, 0, 0, bladeWidth, bladeWidth, 0);
     checkRect(nestedArea.rects[1], 'C', 850, 0, 0, 0, bladeWidth, 0);
-    checkRect(nestedArea.rects[2], 'C', 0, 625, 0, bladeWidth, bladeWidth, 0);
-    checkRect(nestedArea.rects[3], 'C', 850, 625, 0, 0, bladeWidth, 0);
+    checkRect(nestedArea.rects[2], 'C', 0, 625, 0, bladeWidth, 0, 0);
+    checkRect(nestedArea.rects[3], 'C', 850, 625, 0, 0, 0, 0);
 
     const nestedArea2 = grouped.nestedAreas[1];
     checkArea(nestedArea2, 625, 1250, 1700, 0, 0, bladeWidth, 0, 0, 8, 0);
@@ -509,7 +509,7 @@ describe('Grouper', () => {
     checkRect(nestedArea2.rects[7], 'B', 0, 1135, 0, 0, bladeWidth, 0);
   });
 
-  it('should pack 6 of 6 items', () => {
+  it('should pack 7 of 7 items', () => {
     const rects = [
       Rect.create('A', 900, 600),
       Rect.create('B', 440, 390),
@@ -543,7 +543,10 @@ describe('Grouper', () => {
 
     const nestedArea = grouped.nestedAreas[0];
     checkArea(nestedArea, 890, 600, 905, 0, 0, bladeWidth, 0, 0, 2, 2);
-    checkRemainingWidth(nestedArea, [[0, 0]]);
+    checkRemainingWidth(nestedArea, [
+      [0, 0],
+      [395, 0],
+    ]);
 
     checkRect(nestedArea.rects[0], 'B', 0, 0, 0, bladeWidth, bladeWidth, 0);
     checkRect(nestedArea.rects[1], 'B', 445, 0, 0, 0, bladeWidth, 0);
@@ -551,14 +554,17 @@ describe('Grouper', () => {
     checkArea(nestedArea.nestedAreas[0], 885, 130, 0, 395, 0, 0, bladeWidth, 0, 2, 0);
     checkRemainingWidth(nestedArea.nestedAreas[0], [
       [0, 180],
-      [106, 180],
+      [70, 180],
     ]);
 
     checkRect(nestedArea.nestedAreas[0].rects[0], 'C', 0, 0, 0, bladeWidth, bladeWidth, 0);
     checkRect(nestedArea.nestedAreas[0].rects[1], 'C', 0, 65, 0, bladeWidth, 0, 0);
 
     checkArea(nestedArea.nestedAreas[1], 745, 75, 0, 525, 0, bladeWidth, 0, 0, 2, 0);
-    checkRemainingWidth(nestedArea.nestedAreas[1], [[0, 0]]);
+    checkRemainingWidth(nestedArea.nestedAreas[1], [
+      [0, 0],
+      [74, 740],
+    ]);
 
     checkRect(nestedArea.nestedAreas[1].rects[0], 'D', 0, 0, 0, 0, bladeWidth, 0);
     checkRect(nestedArea.nestedAreas[1].rects[1], 'D', 0, 35, 0, 0, bladeWidth, 0);

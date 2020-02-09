@@ -31,10 +31,10 @@ const ItemContainer = ({ sheetArea, scale }) => {
   }
 
   const style = {
-    width: sheetArea.width * scale,
-    height: sheetArea.height * scale,
-    top: sheetArea.posY * scale,
-    left: sheetArea.posX * scale,
+    width: Math.round(sheetArea.width * scale),
+    height: Math.round(sheetArea.height * scale),
+    top: Math.round(sheetArea.posY * scale),
+    left: Math.round(sheetArea.posX * scale),
     borderTop: `${Math.round(sheetArea.cuttingWidth.top * scale)}px solid black`,
     borderRight: `${Math.round(sheetArea.cuttingWidth.right * scale)}px solid black`,
     borderBottom: `${Math.round(sheetArea.cuttingWidth.bottom * scale)}px solid black`,

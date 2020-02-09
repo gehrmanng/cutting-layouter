@@ -85,7 +85,11 @@ export default class SheetArea {
    * @param {number} height The extension height
    * @returns {boolean} True if the height could be extended, false otherwise
    */
-  extendHeight(height) {
+  extendHeight(height, usedWidth = 0) {
+    if (height === 0) {
+      return true;
+    }
+
     if (this._height + height > this._maxHeight) {
       return false;
     }
@@ -99,6 +103,7 @@ export default class SheetArea {
       if (this._posY + extendedHeight > this._parent.height) {
         const parentExtended = this._parent.extendHeight(
           this._posY + extendedHeight - this._parent.height,
+          this.fullWidth,
         );
         if (!parentExtended) {
           return false;
@@ -111,9 +116,9 @@ export default class SheetArea {
       const na = this._nestedAreas[this._nestedAreas.length - 1];
       if (na.cuttingWidth.bottom === 0) {
         this.updateGrid(na.posY + na.height, na.posX + na.fullWidth, this._bladeWidth);
+        this._height += this._bladeWidth;
+        na.cuttingWidth = { bottom: this._bladeWidth };
       }
-      na.cuttingWidth = { bottom: this._bladeWidth };
-      this._height += this._bladeWidth;
     } else if (this._rects && this._rects.length) {
       const maxPosY = Math.max(...this._rects.map(r => r.posY));
       const lastRects = this._rects.filter(r => r.posY === maxPosY);
@@ -125,9 +130,8 @@ export default class SheetArea {
       this._height += this._bladeWidth;
     }
 
-    this.updateGrid(this._height, 0, height);
+    this.updateGrid(this._height, usedWidth, height);
     this._height += height;
-
     if (this._height === this._maxHeight) {
       this.cuttingWidth.bottom = 0;
     }
