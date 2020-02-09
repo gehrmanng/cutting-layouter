@@ -27,6 +27,8 @@ export default class Sheet {
     this._height = height;
     this._items = items;
     this._bladeWidth = bladeWidth;
+    this._sheetArea = new SheetArea(this._width, this._height, this._height, this._bladeWidth);
+    this._grouper = new Grouper(this._bladeWidth);
   }
 
   /**
@@ -45,8 +47,10 @@ export default class Sheet {
         }
       });
 
-    this._sheetArea = new SheetArea(this._width, this._height, this._height, this._bladeWidth);
-    new Grouper(this._bladeWidth).group(allRects, this._sheetArea);
+    const remainingRects = this._grouper.group(allRects, this._sheetArea);
+    if (remainingRects.length) {
+      // this._grouper.group(remainingRects, this._sheetArea);
+    }
 
     return notAddedItems;
   }

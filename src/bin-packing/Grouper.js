@@ -53,7 +53,7 @@ export default class Grouper {
       .filter(h => h < fullHeight || (hasFullHeightFullWidth && h === fullHeight));
 
     if (!remainingHeights.length) {
-      return sheetArea;
+      return notAdded;
     }
 
     const nonFullHeightRectsByHeight = {};
@@ -68,7 +68,7 @@ export default class Grouper {
     const remainingRects = this._addMaxWidthGroups(sheetArea, nonFullHeightRectsByHeight);
 
     if (!remainingRects.length) {
-      return sheetArea;
+      return notAdded;
     }
 
     let remainingPosY = -1;
@@ -81,7 +81,8 @@ export default class Grouper {
       }
     }
     if (remainingPosY < 0) {
-      return sheetArea;
+      notAdded.push(...remainingRects);
+      return notAdded;
     }
 
     const groupedByHeight = this._groupByHeight(
@@ -89,14 +90,18 @@ export default class Grouper {
       remainingWidth,
     );
 
-    this._addNonFullSizeRects(sheetArea, [].concat(...Object.values(groupedByHeight)));
+    const remainingNonFullSizeRects = this._addNonFullSizeRects(
+      sheetArea,
+      [].concat(...Object.values(groupedByHeight)),
+    );
+    notAdded.push(...remainingNonFullSizeRects);
 
     // Optimize the dimensions of each nested area
     if (!sheetArea.parent) {
       this._optimizeNestedAreaDimensions(sheetArea);
     }
 
-    return sheetArea;
+    return notAdded;
   }
 
   /**
@@ -228,7 +233,7 @@ export default class Grouper {
    * @param {object} rectsByHeight All available rects grouped by their height
    */
   _addMaxWidthGroups(sheetArea, rectsByHeight) {
-    let notAdded = [];
+    const notAdded = [];
 
     let remainingWidth = sheetArea.getRemainingWidth(0);
     if (remainingWidth === 0) {
@@ -267,7 +272,7 @@ export default class Grouper {
           group.rects.sort((l, r) => l.width - r.width);
           group.rects.forEach(r => sheetArea.addRect(r));
         } else {
-          notAdded = [...notAdded, ...group.rects];
+          notAdded.push(...group.rects);
         }
       });
     });
@@ -283,6 +288,7 @@ export default class Grouper {
    *                                available width
    */
   _addNonFullSizeRects(sheetArea, groupsByWidth) {
+    const notAddedRects = [];
     groupsByWidth.sort((l, r) => {
       const groupArea1 = l.width * l.rects[0].height;
       const groupArea2 = r.width * r.rects[0].height;
@@ -313,10 +319,12 @@ export default class Grouper {
 
       if (
         existingNestedArea &&
-        (existingNestedArea.width >= width || existingNestedArea.width >= maxSingleWidth)
+        (existingNestedArea.width >= width || existingNestedArea.width >= maxSingleWidth) &&
+        existingNestedArea.extendHeight(height)
       ) {
-        if (existingNestedArea.extendHeight(height)) {
-          this.group(rects, existingNestedArea);
+        const remainingRects = this.group(rects, existingNestedArea);
+        if (remainingRects.length) {
+          notAddedRects.push(...remainingRects);
         }
       } else {
         let maxHeight = sheetArea.getMaximumHeight(width, height);
@@ -334,7 +342,10 @@ export default class Grouper {
             this._bladeWidth,
             sheetArea,
           );
-          this.group(rects, newNestedArea);
+          const remainingRects = this.group(rects, newNestedArea);
+          if (remainingRects.length) {
+            notAddedRects.push(...remainingRects);
+          }
 
           const [, posY] = sheetArea.canAdd(newNestedArea.fullWidth, newNestedArea.fullHeight);
 
@@ -346,9 +357,13 @@ export default class Grouper {
             sheetArea.extendHeight(newNestedArea.fullHeight);
           }
           sheetArea.addNestedArea(newNestedArea);
+        } else {
+          notAddedRects.push(...rects);
         }
       }
     });
+
+    return notAddedRects;
   }
 
   /**

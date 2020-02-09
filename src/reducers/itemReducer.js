@@ -21,7 +21,7 @@ const initialState = {
     // new Item('C', 80, 350, 1, 9),
     // new Item('B', 1095, 50, 1, 8),
     // new Item('C', 50, 480, 1, 8),
-    // new Item('D', 100, 50, 1, 8),
+    new Item('E', 100, 50, 1, 8),
     // new Item('A', 1000, 50, 1, 9),
     // new Item('C', 50, 535, 1, 8),
     // new Item('A', 620, 200, 4, 1),
