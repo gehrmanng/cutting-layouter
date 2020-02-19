@@ -95,6 +95,10 @@ export default class Rect {
     return this._name;
   }
 
+  get numberOfCuts() {
+    return Object.values(this._cuttingWidth).filter(cw => cw > 0).length;
+  }
+
   get posX() {
     return this._posX;
   }

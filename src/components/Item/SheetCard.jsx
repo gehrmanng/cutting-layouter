@@ -15,9 +15,11 @@ import I18n from '@gehrmanng/react-i18n';
 
 // Local component imports
 import Sheet from './Sheet';
+import SheetSummary from './SheetSummary';
 
 // Local data object imports
 import { Item, Material, Packer } from '../../bin-packing';
+import Job from '../../data/Job';
 
 // Styling definitions
 const useStyles = makeStyles(theme => ({
@@ -28,6 +30,9 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(3),
   },
   cardHeader: {},
+  sheetContainer: {
+    paddingBottom: theme.spacing(3),
+  },
 }));
 
 /**
@@ -41,6 +46,7 @@ const SheetCard = ({ items, materials }) => {
   const theme = useTheme();
 
   const [sheets, setSheets] = useState([]);
+  const [job] = useState(new Job());
   const cardRef = useRef(null);
 
   /**
@@ -50,6 +56,7 @@ const SheetCard = ({ items, materials }) => {
     const packer = new Packer();
     const packedSheets = packer.pack(items, materials);
     setSheets(packedSheets);
+    job.sheets = packedSheets;
   }, [items]);
 
   return (
@@ -68,11 +75,14 @@ const SheetCard = ({ items, materials }) => {
       />
       <CardContent>
         {sheets.map(sheet => (
-          <Sheet
-            key={sheet.id}
-            sheet={sheet}
-            maxWidth={cardRef.current.offsetWidth - theme.spacing(4) - 2}
-          />
+          <div className={classes.sheetContainer} key={`${sheet.id}_container`}>
+            <SheetSummary job={job} sheet={sheet} />
+            <Sheet
+              key={sheet.id}
+              sheet={sheet}
+              maxWidth={cardRef.current.offsetWidth - theme.spacing(4) - 2}
+            />
+          </div>
         ))}
       </CardContent>
     </Card>

@@ -40,7 +40,19 @@
     "title": "Materials"
   },
   "SheetCard": {
-    "title": "Sheet layout"
+    "title": "Sheet layout",
+    "summary": {
+      "clientName": "Client name: _client_",
+      "dateRequired": "Date required: _date_",
+      "phoneNumber": "Phone number: _phone_",
+      "layoutSummary": "Layout _sheetNumber_ of _totalSheets_ - _material_ _thickness_mm (_width_mm x _height_mm)",
+      "sheetPanels": "Sheet panels: _panels_",
+      "sheetWastage": "Sheet wastage: _wastage_%",
+      "numberOfCuts": "Number of cuts: _cuts_",
+      "jobPanels": "Job panels: _panels_",
+      "jobWastage": "Job wastage: _wastage_%",
+      "jobCuts": "Job cuts: _cuts_"
+    }
   },
   "global": {
     "unit": {

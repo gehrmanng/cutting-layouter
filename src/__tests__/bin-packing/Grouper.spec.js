@@ -174,7 +174,7 @@ describe('Grouper', () => {
     checkRect(nestedArea.rects[2], 'C', 310, 0, 0, bladeWidth, 0, 0);
   });
 
-  it('should pack two items, one smaller then the other', () => {
+  it('should pack two items, one smaller than the other', () => {
     const rects = [Rect.create('A', 200, 400), Rect.create('B', 50, 350)];
 
     const grouped = new SheetArea(700, 400, 400, bladeWidth);

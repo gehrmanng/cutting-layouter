@@ -53,7 +53,9 @@ const Item = ({ rect, scale }) => {
       data-width={rect.width}
       data-height={rect.height}
       data-posx={rect.posX}
-      data-posy={rect.posY}>
+      data-posy={rect.posY}
+      data-cuts={rect.numberOfCuts}
+    >
       {rect.name}
     </div>
   );

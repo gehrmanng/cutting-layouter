@@ -247,6 +247,30 @@ export default class SheetArea {
     return this._nestedAreas;
   }
 
+  get numberOfCuts() {
+    let result = Object.values(this._cuttingWidth).filter(cw => cw > 0).length;
+
+    if (this._rects.length) {
+      result += this._rects.map(r => r.numberOfCuts).reduce((p, c) => p + c);
+    }
+
+    if (this._nestedAreas.length) {
+      result += this._nestedAreas.map(na => na.numberOfCuts).reduce((p, c) => p + c);
+    }
+
+    return result;
+  }
+
+  get numberOfRects() {
+    let result = this._rects.length;
+
+    if (this._nestedAreas.length) {
+      result += this._nestedAreas.map(na => na.numberOfRects).reduce((p, c) => p + c);
+    }
+
+    return result;
+  }
+
   get parent() {
     return this._parent;
   }
@@ -273,6 +297,20 @@ export default class SheetArea {
 
   get remaining() {
     return this._remaining;
+  }
+
+  get usedArea() {
+    let result = 0;
+
+    if (this._rects.length) {
+      result += this._rects.map(r => r.area).reduce((p, c) => p + c);
+    }
+
+    if (this._nestedAreas.length) {
+      result += this._nestedAreas.map(na => na.usedArea).reduce((p, c) => p + c);
+    }
+
+    return result;
   }
 
   get width() {

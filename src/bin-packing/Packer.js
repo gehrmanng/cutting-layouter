@@ -44,7 +44,14 @@ export default class Packer {
    * @param {Item[]} items All layout items with the given sheet material
    */
   _packByMaterial(material, items) {
-    const sheet = new Sheet(this._sheetCounter, material.width, material.height, items, 5);
+    const sheet = new Sheet(
+      this._sheetCounter,
+      material.width,
+      material.height,
+      items,
+      5,
+      material,
+    );
     sheet.pack();
     this._sheets.push(sheet);
     this._sheetCounter += 1;

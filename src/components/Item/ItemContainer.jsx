@@ -49,7 +49,9 @@ const ItemContainer = ({ sheetArea, scale }) => {
       data-height={sheetArea.height}
       data-fullheight={sheetArea.fullHeight}
       data-posx={sheetArea.posX}
-      data-posy={sheetArea.posY}>
+      data-posy={sheetArea.posY}
+      data-cuts={sheetArea.numberOfCuts}
+    >
       {sheetArea.rects &&
         sheetArea.rects.map(rect => <Item key={rect.id} rect={rect} scale={scale} />)}
       {sheetArea.nestedAreas &&
