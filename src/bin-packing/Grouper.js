@@ -301,9 +301,14 @@ export default class Grouper {
       if (
         existingNestedArea &&
         existingNestedArea.height === height &&
-        sheetArea.getRemainingWidth(existingNestedArea.posY) >= width
+        existingNestedArea.parent.getRemainingWidth(existingNestedArea.posY) >= width
       ) {
-        existingNestedArea.extendWidth(width);
+        existingNestedArea.extendWidth(width + this._bladeWidth);
+        const notGroupedRects = this.group([rect], existingNestedArea);
+        if (notGroupedRects.length) {
+          notAddedRects.push(...notGroupedRects);
+        }
+      } else if (existingNestedArea && existingNestedArea.canAdd(width, height, false, true)) {
         const notGroupedRects = this.group([rect], existingNestedArea);
         if (notGroupedRects.length) {
           notAddedRects.push(...notGroupedRects);
@@ -313,11 +318,6 @@ export default class Grouper {
         existingNestedArea.width >= width &&
         existingNestedArea.extendHeight(height)
       ) {
-        const notGroupedRects = this.group([rect], existingNestedArea);
-        if (notGroupedRects.length) {
-          notAddedRects.push(...notGroupedRects);
-        }
-      } else if (existingNestedArea && existingNestedArea.canAdd(width, height, true)) {
         const notGroupedRects = this.group([rect], existingNestedArea);
         if (notGroupedRects.length) {
           notAddedRects.push(...notGroupedRects);
@@ -398,11 +398,11 @@ export default class Grouper {
       return matchingNestedArea;
     }
 
-    // Find deeper level nested areas with the same width and enough remaining height
     const hasNestedAreas = availableNestedAreas.filter(
       na => na.nestedAreas && na.nestedAreas.length,
     );
 
+    // Find deeper level nested areas with the same width and enough remaining height
     // eslint-disable-next-line no-restricted-syntax
     for (const na of hasNestedAreas) {
       matchingNestedArea = this._findNestedArea(

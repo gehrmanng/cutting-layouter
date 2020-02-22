@@ -71,8 +71,8 @@ export default class SheetArea {
    * @param {boolean} fillRemaining Flag indicating if the given width should fill all remaining width
    * @returns {boolean|number[]} The x and y coordinates if the required space is available, false otherwise
    */
-  canAdd(width, height, fillRemaining) {
-    const [posX, posY] = this._getGridPosition(width, height);
+  canAdd(width, height, fillRemaining, useCurrentHeight) {
+    const [posX, posY] = this._getGridPosition(width, height, useCurrentHeight);
 
     const canAdd =
       posX >= 0 && posY >= 0 && (!fillRemaining || (fillRemaining && posX + width === this._width));
@@ -163,15 +163,12 @@ export default class SheetArea {
         const last = _.last(collection);
         const rightCuttingWidth = Math.min(this._bladeWidth, width);
         last.cuttingWidth = { right: rightCuttingWidth };
-        if (this.parent && this._width < this.parent.width) {
-          this._width += rightCuttingWidth;
-        }
         this.updateGrid(last.posY, last.posX + last.fullWidth, last.fullHeight);
       });
     }
 
     if (this._parent) {
-      if (this._width === this._parent.width) {
+      if (this._posX + this._width === this._parent.width) {
         this._cuttingWidth.right = 0;
       }
 
@@ -330,15 +327,13 @@ export default class SheetArea {
     this._width = value;
   }
 
-  _getGridPosition(width, height) {
+  _getGridPosition(width, height, useCurrentHeight) {
     let posX;
     let posY;
+    const usedHeight = useCurrentHeight ? this._height : this._maxHeight;
 
-    for (let i = 0; i < this._maxHeight; i += 1) {
-      if (
-        i + height <= this._maxHeight &&
-        (!this._grid[i] || this._grid[i] + width <= this._width)
-      ) {
+    for (let i = 0; i < usedHeight; i += 1) {
+      if (i + height <= usedHeight && (!this._grid[i] || this._grid[i] + width <= this._width)) {
         posX = this._grid[i] || 0;
         posY = i;
         break;

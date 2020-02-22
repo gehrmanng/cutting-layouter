@@ -18,6 +18,10 @@ export default class Sorter {
       result = r2.height - r1.height;
     }
 
+    if (result === 0) {
+      result = r1.index - r2.index;
+    }
+
     return result;
   }
 }
