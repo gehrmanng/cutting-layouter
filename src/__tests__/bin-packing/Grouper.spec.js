@@ -169,9 +169,9 @@ describe('Grouper', () => {
     const nestedArea = grouped.nestedAreas[0];
     checkArea(nestedArea, 700, 105, 0, 0, 0, 0, bladeWidth, 0, 3, 0);
     checkRemainingWidth(nestedArea, [[0, 85]]);
-    checkRect(nestedArea.rects[0], 'A', 0, 0, 0, bladeWidth, 0, 0);
-    checkRect(nestedArea.rects[1], 'B', 105, 0, 0, bladeWidth, 0, 0);
-    checkRect(nestedArea.rects[2], 'C', 310, 0, 0, bladeWidth, 0, 0);
+    checkRect(nestedArea.rects[0], 'C', 0, 0, 0, bladeWidth, 0, 0);
+    checkRect(nestedArea.rects[1], 'B', 305, 0, 0, bladeWidth, 0, 0);
+    checkRect(nestedArea.rects[2], 'A', 510, 0, 0, bladeWidth, 0, 0);
   });
 
   it('should pack two items, one smaller than the other', () => {
@@ -197,7 +197,7 @@ describe('Grouper', () => {
     checkRect(nestedArea.rects[0], 'B', 0, 0, 0, 0, bladeWidth, 0);
   });
 
-  it('should pack three items, two smaller then the first', () => {
+  it('should pack three items, two smaller than the first', () => {
     const rects = [
       Rect.create('A', 200, 400),
       Rect.create('B', 50, 350),
@@ -217,8 +217,8 @@ describe('Grouper', () => {
 
     const nestedArea = grouped.nestedAreas[0];
     checkArea(nestedArea, 140, 400, 205, 0, 0, bladeWidth, 0, 0, 2, 0);
-    checkRect(nestedArea.rects[0], 'B', 0, 0, 0, bladeWidth, bladeWidth, 0);
-    checkRect(nestedArea.rects[1], 'C', 55, 0, 0, 0, bladeWidth, 0);
+    checkRect(nestedArea.rects[0], 'C', 0, 0, 0, bladeWidth, bladeWidth, 0);
+    checkRect(nestedArea.rects[1], 'B', 85, 0, 0, 0, bladeWidth, 0);
   });
 
   it('should pack 5 of 6 items', () => {
@@ -542,31 +542,32 @@ describe('Grouper', () => {
     checkRect(grouped.rects[0], 'A', 0, 0, 0, bladeWidth, 0, 0);
 
     const nestedArea = grouped.nestedAreas[0];
-    checkArea(nestedArea, 890, 600, 905, 0, 0, bladeWidth, 0, 0, 2, 2);
+    checkArea(nestedArea, 890, 600, 905, 0, 0, bladeWidth, 0, 0, 2, 1);
     checkRemainingWidth(nestedArea, [
       [0, 0],
-      [395, 0],
+      [395, 140],
     ]);
 
     checkRect(nestedArea.rects[0], 'B', 0, 0, 0, bladeWidth, bladeWidth, 0);
     checkRect(nestedArea.rects[1], 'B', 445, 0, 0, 0, bladeWidth, 0);
 
-    checkArea(nestedArea.nestedAreas[0], 885, 130, 0, 395, 0, 0, bladeWidth, 0, 2, 0);
+    checkArea(nestedArea.nestedAreas[0], 745, 205, 0, 395, 0, bladeWidth, 0, 0, 2, 1);
     checkRemainingWidth(nestedArea.nestedAreas[0], [
-      [0, 180],
-      [70, 180],
-    ]);
-
-    checkRect(nestedArea.nestedAreas[0].rects[0], 'C', 0, 0, 0, bladeWidth, bladeWidth, 0);
-    checkRect(nestedArea.nestedAreas[0].rects[1], 'C', 0, 65, 0, bladeWidth, 0, 0);
-
-    checkArea(nestedArea.nestedAreas[1], 745, 75, 0, 525, 0, bladeWidth, 0, 0, 2, 0);
-    checkRemainingWidth(nestedArea.nestedAreas[1], [
       [0, 0],
-      [74, 740],
+      [70, 35],
     ]);
 
-    checkRect(nestedArea.nestedAreas[1].rects[0], 'D', 0, 0, 0, 0, bladeWidth, 0);
-    checkRect(nestedArea.nestedAreas[1].rects[1], 'D', 0, 35, 0, 0, bladeWidth, 0);
+    checkRect(nestedArea.nestedAreas[0].rects[0], 'D', 0, 0, 0, 0, bladeWidth, 0);
+    checkRect(nestedArea.nestedAreas[0].rects[1], 'D', 0, 35, 0, 0, bladeWidth, 0);
+
+    const nestedNestedArea = nestedArea.nestedAreas[0].nestedAreas[0];
+    checkArea(nestedNestedArea, 705, 135, 0, 70, 0, bladeWidth, 0, 0, 2, 0);
+    checkRemainingWidth(nestedNestedArea, [
+      [0, 0],
+      [74, 0],
+    ]);
+
+    checkRect(nestedNestedArea.rects[0], 'C', 0, 0, 0, 0, bladeWidth, 0);
+    checkRect(nestedNestedArea.rects[1], 'C', 0, 65, 0, 0, bladeWidth, 0);
   });
 });

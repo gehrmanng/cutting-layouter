@@ -56,7 +56,7 @@ const Item = ({ rect, scale }) => {
       data-posy={rect.posY}
       data-cuts={rect.numberOfCuts}
     >
-      {rect.name}
+      {`${rect.name}${rect.index + 1}`}
     </div>
   );
 };

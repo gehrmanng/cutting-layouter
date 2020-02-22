@@ -35,9 +35,11 @@ const SideNavigation = () => {
       className={classes.drawer}
       classes={{
         paper: classes.drawerClose,
-      }}>
+      }}
+    >
       <div className={classes.toolbar} />
       {[
+        ['contact_mail', '/jobdata', 'jobdata'],
         ['table_chart', '/layout', 'layout'],
         ['category', '/materials', 'materials'],
         ['settings', '/settings', 'settings'],
@@ -48,7 +50,8 @@ const SideNavigation = () => {
             className={classes.button}
             component={NavLink}
             to={target}
-            activeClassName={classes.active}>
+            activeClassName={classes.active}
+          >
             <Icon>{icon}</Icon>
           </IconButton>
         </Tooltip>

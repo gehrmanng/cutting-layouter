@@ -7,7 +7,13 @@ import { Item, Material } from './bin-packing';
 // Reducer imports
 import rootReducer from './reducers';
 
+const useLocalStorage = true;
+
 const loadState = () => {
+  if (!useLocalStorage) {
+    return undefined;
+  }
+
   try {
     const serializedItems = localStorage.getItem('items');
     let deserializedItems;
@@ -41,6 +47,10 @@ const loadState = () => {
 };
 
 const saveState = state => {
+  if (!useLocalStorage) {
+    return;
+  }
+
   try {
     const serializedItems = state.itemReducer.items.map(i => i.serialize());
     const serializedMaterials = state.materialReducer.materials.map(m => m.serialize());

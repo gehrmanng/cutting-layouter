@@ -26,7 +26,7 @@ export default class Rect {
    * @param {number} [y=0] - The y position, defaults to 0
    * @param {string} [name=''] - The rectangle name
    */
-  constructor(itemId, width, height, x = 0, y = 0, name = '') {
+  constructor(itemId, width, height, x = 0, y = 0, name = '', index = 0) {
     this._id = uuid();
     this._itemId = itemId;
     this._area = width * height;
@@ -35,6 +35,7 @@ export default class Rect {
     this._posX = x;
     this._posY = y;
     this._width = width;
+    this._index = index;
     this._cuttingWidth = {
       top: 0,
       right: 0,
@@ -85,6 +86,10 @@ export default class Rect {
 
   get id() {
     return this._id;
+  }
+
+  get index() {
+    return this._index;
   }
 
   get itemId() {

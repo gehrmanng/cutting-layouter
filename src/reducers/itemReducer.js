@@ -7,11 +7,11 @@ import { Item } from '../bin-packing';
 // Initial state definition
 const initialState = {
   items: [
-    new Item('A', 900, 600, 1, 8),
-    new Item('B', 440, 390, 2, 8),
+    // new Item('A', 900, 600, 1, 8),
+    // new Item('B', 440, 390, 2, 8),
     // new Item('D', 740, 100, 1, 8),
-    new Item('D', 740, 30, 2, 8),
-    new Item('C', 700, 60, 2, 8),
+    // new Item('D', 740, 30, 2, 8),
+    // new Item('C', 700, 60, 2, 8),
     // new Item('A', 900, 600, 1),
     // new Item('B', 525, 390, 2),
     // new Item('D', 1055, 100, 1),
@@ -21,7 +21,7 @@ const initialState = {
     // new Item('C', 80, 350, 1, 9),
     // new Item('B', 1095, 50, 1, 8),
     // new Item('C', 50, 480, 1, 8),
-    new Item('E', 100, 50, 1, 8),
+    // new Item('E', 100, 50, 1, 8),
     // new Item('A', 1000, 50, 1, 9),
     // new Item('C', 50, 535, 1, 8),
     // new Item('A', 620, 200, 4, 1),

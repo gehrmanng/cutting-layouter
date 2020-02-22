@@ -163,6 +163,9 @@ export default class SheetArea {
         const last = _.last(collection);
         const rightCuttingWidth = Math.min(this._bladeWidth, width);
         last.cuttingWidth = { right: rightCuttingWidth };
+        if (this.parent && this._width < this.parent.width) {
+          this._width += rightCuttingWidth;
+        }
         this.updateGrid(last.posY, last.posX + last.fullWidth, last.fullHeight);
       });
     }
@@ -251,7 +254,13 @@ export default class SheetArea {
     let result = Object.values(this._cuttingWidth).filter(cw => cw > 0).length;
 
     if (this._rects.length) {
-      result += this._rects.map(r => r.numberOfCuts).reduce((p, c) => p + c);
+      const sameHeightRowRects = _.groupBy(this._rects, r => `${r.posY}#${r.height}`);
+      Object.values(sameHeightRowRects).forEach(rects => {
+        result += rects.filter(r => r.cuttingWidth.right > 0).length;
+        if (rects[0].cuttingWidth.bottom > 0) {
+          result += 1;
+        }
+      });
     }
 
     if (this._nestedAreas.length) {

@@ -45,7 +45,7 @@ export default class Sheet {
       .filter(i => i.height <= this._height && i.width <= this._width)
       .forEach(item => {
         for (let i = 0; i < item.quantity; i += 1) {
-          allRects.push(new Rect(item.id, item.width, item.height, 0, 0, item.name));
+          allRects.push(new Rect(item.id, item.width, item.height, 0, 0, item.name, i));
         }
       });
 
