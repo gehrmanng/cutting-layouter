@@ -46,7 +46,7 @@ export default class SheetArea {
     newNestedArea.posY = posY;
     this._setCuttings(newNestedArea);
     this._nestedAreas.push(newNestedArea);
-    this.updateGrid(posY, newNestedArea.posX + newNestedArea.fullWidth, newNestedArea.fullHeight);
+    this.updateGrid(posY, newNestedArea.rightPosition, newNestedArea.fullHeight);
   }
 
   /**
@@ -79,13 +79,137 @@ export default class SheetArea {
     return canAdd ? [posX, posY] : false;
   }
 
+  extendHeight(byHeight, rectOrArea) {
+    if (!rectOrArea && !byHeight) {
+      return false;
+    }
+
+    let extendByHeight;
+    if (rectOrArea) {
+      if (this.canAdd(rectOrArea.width, rectOrArea.height, false, true)) {
+        return true;
+      }
+
+      const coords = this.canAdd(rectOrArea.width, rectOrArea.height, false, false);
+      if (!coords) {
+        return false;
+      }
+
+      extendByHeight = coords[1] + rectOrArea.height - this.height;
+    }
+
+    extendByHeight = extendByHeight || byHeight;
+
+    if (!extendByHeight) {
+      return false;
+    }
+
+    let lowestChildren;
+    if (this.children.length) {
+      const lowestChild = _.max(this.children, child => child.bottomPosition);
+
+      lowestChildren = this.children.filter(c => c.bottomPosition === lowestChild.bottomPosition);
+      if (
+        lowestChild.bottomPosition === this._height &&
+        lowestChild.cuttingWidth.bottom < this._bladeWidth
+      ) {
+        extendByHeight += this._bladeWidth - lowestChild.cuttingWidth.bottom;
+      }
+    }
+
+    const extendedHeight = this._height + extendByHeight;
+    if (extendedHeight > this._maxHeight) {
+      return false;
+    }
+
+    if (this._parent) {
+      const parentExtended = this._parent.extendHeightForChild(extendedHeight, this);
+      if (!parentExtended) {
+        return false;
+      }
+    }
+
+    this.updateGrid(this._height, 0, extendByHeight);
+    this._height += extendByHeight;
+
+    if (lowestChildren && lowestChildren.length) {
+      lowestChildren.forEach(child => {
+        child.cuttingWidth.bottom = this._bladeWidth;
+        this.updateGrid(
+          child.bottomPosition - this._bladeWidth,
+          child.rightPosition,
+          this._bladeWidth,
+        );
+      });
+    }
+
+    return true;
+  }
+
+  extendHeightForChild(newHeight, child) {
+    let newChildBottom = child.posY + newHeight;
+    if (newChildBottom > this._maxHeight) {
+      return false;
+    }
+
+    let borderExceedsHeight = false;
+    if (child.cuttingWidth.bottom > 0 && !this._parent) {
+      borderExceedsHeight = newChildBottom + child.cuttingWidth.bottom > this._maxHeight;
+      newChildBottom = Math.min(newChildBottom + child.cuttingWidth.bottom, this._maxHeight);
+    }
+
+    if (
+      newChildBottom < this._height ||
+      (newChildBottom === this._height && !borderExceedsHeight)
+    ) {
+      this.updateGrid(
+        child.bottomPosition - child.cuttingWidth.bottom,
+        child.rightPosition,
+        newChildBottom - (child.bottomPosition - child.cuttingWidth.bottom),
+      );
+      return true;
+    }
+
+    let canExtend = true;
+    for (let i = child.bottomPosition; i < newChildBottom; i += 1) {
+      if (this._grid[i] > child.posX) {
+        canExtend = false;
+        break;
+      }
+    }
+
+    if (!canExtend) {
+      return false;
+    }
+
+    if (this._parent) {
+      const parentExtended = this._parent.extendHeightForChild(newChildBottom, this);
+      if (!parentExtended) {
+        return false;
+      }
+    }
+
+    if (child.cuttingWidth.bottom > 0) {
+      child.cuttingWidth.bottom = 0;
+    }
+
+    this.updateGrid(
+      child.bottomPosition,
+      child.rightPosition,
+      newChildBottom - child.bottomPosition,
+    );
+    this._height = newChildBottom;
+
+    return true;
+  }
+
   /**
    * Extend the height of this sheet area by the given value.
    *
    * @param {number} height The extension height
    * @returns {boolean} True if the height could be extended, false otherwise
    */
-  extendHeight(height, usedWidth = 0) {
+  extendHeightOld(height, usedWidth = 0) {
     if (height === 0) {
       return true;
     }
@@ -115,7 +239,7 @@ export default class SheetArea {
     if (this._nestedAreas && this._nestedAreas.length) {
       const na = this._nestedAreas[this._nestedAreas.length - 1];
       if (na.cuttingWidth.bottom === 0) {
-        this.updateGrid(na.posY + na.height, na.posX + na.fullWidth, this._bladeWidth);
+        this.updateGrid(na.posY + na.height, na.rightPosition, this._bladeWidth);
         this._height += this._bladeWidth;
         na.cuttingWidth = { bottom: this._bladeWidth };
       }
@@ -125,7 +249,7 @@ export default class SheetArea {
 
       lastRects.forEach(r => {
         r.cuttingWidth = { bottom: this._bladeWidth };
-        this.updateGrid(this._height, r.posX + r.fullWidth, this._bladeWidth);
+        this.updateGrid(this._height, r.rightPosition, this._bladeWidth);
       });
       this._height += this._bladeWidth;
     }
@@ -163,7 +287,7 @@ export default class SheetArea {
         const last = _.last(collection);
         const rightCuttingWidth = Math.min(this._bladeWidth, width);
         last.cuttingWidth = { right: rightCuttingWidth };
-        this.updateGrid(last.posY, last.posX + last.fullWidth, last.fullHeight);
+        this.updateGrid(last.posY, last.rightPosition, last.fullHeight);
       });
     }
 
@@ -172,7 +296,7 @@ export default class SheetArea {
         this._cuttingWidth.right = 0;
       }
 
-      this._parent.updateGrid(this._posY, this._posX + this.fullWidth, this.fullHeight);
+      this._parent.updateGrid(this._posY, this.rightPosition, this.fullHeight);
     }
   }
 
@@ -207,20 +331,12 @@ export default class SheetArea {
   /** **** Getters & Setters **** */
   /** *************************** */
 
-  get maxHeight() {
-    return this._maxHeight;
+  get bottomPosition() {
+    return this._posY + this.fullHeight;
   }
 
-  set maxHeight(value) {
-    this._maxHeight = value;
-  }
-
-  get fullHeight() {
-    return this._cuttingWidth.top + this._height + this._cuttingWidth.bottom;
-  }
-
-  get fullWidth() {
-    return this._cuttingWidth.left + this._width + this._cuttingWidth.right;
+  get children() {
+    return [...this._nestedAreas, ...this._rects];
   }
 
   get cuttingWidth() {
@@ -229,6 +345,14 @@ export default class SheetArea {
 
   set cuttingWidth(newCuttingWidth) {
     this._cuttingWidth = { ...this._cuttingWidth, ...newCuttingWidth };
+  }
+
+  get fullHeight() {
+    return this._cuttingWidth.top + this._height + this._cuttingWidth.bottom;
+  }
+
+  get fullWidth() {
+    return this._cuttingWidth.left + this._width + this._cuttingWidth.right;
   }
 
   get height() {
@@ -241,6 +365,14 @@ export default class SheetArea {
 
   get id() {
     return this._id;
+  }
+
+  get maxHeight() {
+    return this._maxHeight;
+  }
+
+  set maxHeight(value) {
+    this._maxHeight = value;
   }
 
   get nestedAreas() {
@@ -303,6 +435,10 @@ export default class SheetArea {
 
   get remaining() {
     return this._remaining;
+  }
+
+  get rightPosition() {
+    return this._posX + this.fullWidth;
   }
 
   get usedArea() {

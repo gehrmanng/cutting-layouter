@@ -260,7 +260,7 @@ export default class Grouper {
           const [, posY] = coords;
           const localRemainingWidth = sheetArea.getRemainingWidth(posY);
           if (Number.isNaN(localRemainingWidth)) {
-            sheetArea.extendHeight(height);
+            sheetArea.extendHeight(undefined, group.rects[0]);
           }
           group.rects.sort((l, r) => l.width - r.width);
           group.rects.forEach(r => sheetArea.addRect(r));
@@ -316,7 +316,7 @@ export default class Grouper {
       } else if (
         existingNestedArea &&
         existingNestedArea.width >= width &&
-        existingNestedArea.extendHeight(height)
+        existingNestedArea.extendHeight(undefined, rect)
       ) {
         const notGroupedRects = this.group([rect], existingNestedArea);
         if (notGroupedRects.length) {
@@ -344,9 +344,9 @@ export default class Grouper {
             throw new Error('Something went wrong');
           }
 
-          if (sheetArea.height < posY) {
-            sheetArea.extendHeight(newNestedArea.fullHeight);
-          }
+          // if (sheetArea.height < posY) {
+          //   sheetArea.extendHeight(newNestedArea.fullHeight);
+          // }
           sheetArea.addNestedArea(newNestedArea);
         } else {
           notAddedRects.push(rect);

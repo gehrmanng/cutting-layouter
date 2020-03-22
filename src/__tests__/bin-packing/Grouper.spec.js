@@ -28,8 +28,15 @@ const checkArea = (
 
 const checkRemainingWidth = (actual, expected) => {
   expected.forEach(([atHeight, expectedRemainingWidth]) => {
-    // console.log(atHeight, actual.getRemainingWidth(atHeight), expectedRemainingWidth);
-    expect(actual.getRemainingWidth(atHeight)).toBe(expectedRemainingWidth);
+    try {
+      expect(actual.getRemainingWidth(atHeight)).toBe(expectedRemainingWidth);
+    } catch (e) {
+      throw new Error(
+        `Expected remaining width at ${atHeight} to be ${expectedRemainingWidth} but was ${actual.getRemainingWidth(
+          atHeight,
+        )}`,
+      );
+    }
   });
 };
 
@@ -435,6 +442,11 @@ describe('Grouper', () => {
     checkRemainingWidth(grouped, [
       [0, 800],
       [1000, 800],
+      [1244, 800],
+      [1245, 800],
+      [1246, 800],
+      [1247, 800],
+      [1248, 800],
       [1249, 800],
     ]);
 

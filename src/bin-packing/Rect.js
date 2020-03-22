@@ -52,12 +52,8 @@ export default class Rect {
     return this._area;
   }
 
-  get border() {
-    return this._border;
-  }
-
-  set border(newBorder) {
-    this._border = { ...this._border, ...newBorder };
+  get bottomPosition() {
+    return this._posY + this.fullHeight;
   }
 
   get cuttingWidth() {
@@ -120,20 +116,8 @@ export default class Rect {
     this._posY = value;
   }
 
-  get leftBorder() {
-    return this._leftBorder;
-  }
-
-  set leftBorder(border) {
-    this._leftBorder = border;
-  }
-
-  get rightBorder() {
-    return this._rightBorder;
-  }
-
-  set rightBorder(border) {
-    this._rightBorder = border;
+  get rightPosition() {
+    return this._posX + this.fullWidth;
   }
 
   get width() {
