@@ -19,15 +19,11 @@ export default function useDeepEffect(effectFunc, deps, props) {
   const prevDeps = useRef(deps);
 
   useEffect(() => {
-    console.log('effect');
     const isSame =
       prevDeps.current.length === deps.length &&
       prevDeps.current.every((obj, index) => isEqualByProps(obj, deps[index], props));
 
-    console.log(isSame);
-
     if (isFirst.current || !isSame) {
-      console.log('func');
       effectFunc();
     }
 
