@@ -63,6 +63,10 @@ describe('Grouper', () => {
   const bladeWidth = 5;
   const grouper = new Grouper(bladeWidth);
 
+  const createSheetArea = (width, height) => {
+    return new SheetArea(width, height, height, bladeWidth, undefined, 0);
+  };
+
   it('should pack three items into a matching sheet', () => {
     const rects = [
       Rect.create('A', 100, 100),
@@ -70,7 +74,7 @@ describe('Grouper', () => {
       Rect.create('C', 300, 100),
     ];
 
-    const grouped = new SheetArea(610, 100, 100, bladeWidth);
+    const grouped = createSheetArea(610, 100);
     grouper.group(rects, grouped);
     checkArea(grouped, 610, 100, 0, 0, 0, 0, 0, 0, 3, 0);
     checkRemainingWidth(grouped, [[0, 0]]);
@@ -86,7 +90,7 @@ describe('Grouper', () => {
       Rect.create('C', 300, 100),
     ];
 
-    const grouped = new SheetArea(700, 100, 100, bladeWidth);
+    const grouped = createSheetArea(700, 100);
     grouper.group(rects, grouped);
 
     checkArea(grouped, 700, 100, 0, 0, 0, 0, 0, 0, 3, 0);
@@ -104,7 +108,7 @@ describe('Grouper', () => {
       Rect.create('C', 300, 100),
     ];
 
-    const grouped = new SheetArea(613, 100, 100, bladeWidth);
+    const grouped = createSheetArea(613, 100);
     grouper.group(rects, grouped);
 
     checkArea(grouped, 613, 100, 0, 0, 0, 0, 0, 0, 3, 0);
@@ -122,15 +126,15 @@ describe('Grouper', () => {
       Rect.create('C', 300, 100),
     ];
 
-    const grouped = new SheetArea(610, 200, 200, bladeWidth);
+    const grouped = createSheetArea(610, 200);
     grouper.group(rects, grouped);
 
     checkArea(grouped, 610, 200, 0, 0, 0, 0, 0, 0, 3, 0);
     checkRemainingWidth(grouped, [[0, 0]]);
 
-    checkRect(grouped.rects[0], 'A', 0, 0, 0, bladeWidth, bladeWidth, 0);
-    checkRect(grouped.rects[1], 'B', 105, 0, 0, bladeWidth, bladeWidth, 0);
-    checkRect(grouped.rects[2], 'C', 310, 0, 0, 0, bladeWidth, 0);
+    checkRect(grouped.rects[0], 'C', 0, 0, 0, bladeWidth, bladeWidth, 0);
+    checkRect(grouped.rects[1], 'B', 305, 0, 0, bladeWidth, bladeWidth, 0);
+    checkRect(grouped.rects[2], 'A', 510, 0, 0, 0, bladeWidth, 0);
   });
 
   it('should pack six items into two rows', () => {
@@ -143,7 +147,7 @@ describe('Grouper', () => {
       Rect.create('F', 100, 95),
     ];
 
-    const grouped = new SheetArea(610, 200, 200, bladeWidth);
+    const grouped = createSheetArea(610, 200);
     grouper.group(rects, grouped);
 
     checkArea(grouped, 610, 200, 0, 0, 0, 0, 0, 0, 6, 0);
@@ -152,12 +156,12 @@ describe('Grouper', () => {
       [105, 0],
     ]);
 
-    checkRect(grouped.rects[0], 'A', 0, 0, 0, bladeWidth, bladeWidth, 0);
-    checkRect(grouped.rects[1], 'B', 105, 0, 0, bladeWidth, bladeWidth, 0);
-    checkRect(grouped.rects[2], 'C', 310, 0, 0, 0, bladeWidth, 0);
-    checkRect(grouped.rects[3], 'F', 0, 105, 0, bladeWidth, 0, 0);
-    checkRect(grouped.rects[4], 'E', 105, 105, 0, bladeWidth, 0, 0);
-    checkRect(grouped.rects[5], 'D', 310, 105, 0, 0, 0, 0);
+    checkRect(grouped.rects[0], 'C', 0, 0, 0, bladeWidth, bladeWidth, 0);
+    checkRect(grouped.rects[1], 'B', 305, 0, 0, bladeWidth, bladeWidth, 0);
+    checkRect(grouped.rects[2], 'A', 510, 0, 0, 0, bladeWidth, 0);
+    checkRect(grouped.rects[3], 'D', 0, 105, 0, bladeWidth, 0, 0);
+    checkRect(grouped.rects[4], 'E', 305, 105, 0, bladeWidth, 0, 0);
+    checkRect(grouped.rects[5], 'F', 510, 105, 0, 0, 0, 0);
   });
 
   it('should pack three items into a wider and higher sheet', () => {
@@ -167,7 +171,7 @@ describe('Grouper', () => {
       Rect.create('C', 300, 100),
     ];
 
-    const grouped = new SheetArea(700, 200, 200, bladeWidth);
+    const grouped = createSheetArea(700, 200);
     grouper.group(rects, grouped);
 
     checkArea(grouped, 700, 200, 0, 0, 0, 0, 0, 0, 0, 1);
@@ -184,7 +188,7 @@ describe('Grouper', () => {
   it('should pack two items, one smaller than the other', () => {
     const rects = [Rect.create('A', 200, 400), Rect.create('B', 50, 350)];
 
-    const grouped = new SheetArea(700, 400, 400, bladeWidth);
+    const grouped = createSheetArea(700, 400);
     grouper.group(rects, grouped);
 
     checkArea(grouped, 700, 400, 0, 0, 0, 0, 0, 0, 1, 1);
@@ -211,7 +215,7 @@ describe('Grouper', () => {
       Rect.create('C', 80, 350),
     ];
 
-    const grouped = new SheetArea(700, 400, 400, bladeWidth);
+    const grouped = createSheetArea(700, 400);
     grouper.group(rects, grouped);
 
     checkArea(grouped, 700, 400, 0, 0, 0, 0, 0, 0, 1, 1);
@@ -238,7 +242,7 @@ describe('Grouper', () => {
       Rect.create('D', 740, 100),
     ];
 
-    const grouped = new SheetArea(2000, 600, 600, bladeWidth);
+    const grouped = createSheetArea(2000, 600);
     grouper.group(rects, grouped);
 
     checkArea(grouped, 2000, 600, 0, 0, 0, 0, 0, 0, 1, 1);
@@ -281,7 +285,7 @@ describe('Grouper', () => {
   it('should pack two items', () => {
     const rects = [Rect.create('A', 1000, 50), Rect.create('B', 50, 535)];
 
-    const grouped = new SheetArea(1000, 600, 600, bladeWidth);
+    const grouped = createSheetArea(1000, 600);
     grouper.group(rects, grouped);
 
     checkArea(grouped, 1000, 600, 0, 0, 0, 0, 0, 0, 1, 1);
@@ -310,7 +314,7 @@ describe('Grouper', () => {
       Rect.create('C', 50, 535),
     ];
 
-    const grouped = new SheetArea(2000, 600, 600, bladeWidth);
+    const grouped = createSheetArea(2000, 600);
     grouper.group(rects, grouped);
 
     checkArea(grouped, 2000, 600, 0, 0, 0, 0, 0, 0, 2, 1);
@@ -341,7 +345,7 @@ describe('Grouper', () => {
       Rect.create('C', 50, 480),
     ];
 
-    const grouped = new SheetArea(2000, 600, 600, bladeWidth);
+    const grouped = createSheetArea(2000, 600);
     grouper.group(rects, grouped);
 
     checkArea(grouped, 2000, 600, 0, 0, 0, 0, 0, 0, 3, 1);
@@ -375,7 +379,7 @@ describe('Grouper', () => {
       Rect.create('F', 50, 480),
     ];
 
-    const grouped = new SheetArea(2000, 600, 600, bladeWidth);
+    const grouped = createSheetArea(2000, 600);
     grouper.group(rects, grouped);
 
     checkArea(grouped, 2000, 600, 0, 0, 0, 0, 0, 0, 5, 1);
@@ -387,9 +391,9 @@ describe('Grouper', () => {
 
     checkRect(grouped.rects[0], 'A', 0, 0, 0, bladeWidth, 0, 0);
     checkRect(grouped.rects[1], 'E', 905, 0, 0, 0, bladeWidth, 0);
-    checkRect(grouped.rects[2], 'D', 905, 55, 0, bladeWidth, bladeWidth, 0);
-    checkRect(grouped.rects[3], 'C', 1005, 55, 0, bladeWidth, bladeWidth, 0);
-    checkRect(grouped.rects[4], 'B', 1405, 55, 0, 0, bladeWidth, 0);
+    checkRect(grouped.rects[2], 'B', 905, 55, 0, bladeWidth, bladeWidth, 0);
+    checkRect(grouped.rects[3], 'C', 1505, 55, 0, bladeWidth, bladeWidth, 0);
+    checkRect(grouped.rects[4], 'D', 1905, 55, 0, 0, bladeWidth, 0);
 
     const nestedArea = grouped.nestedAreas[0];
     checkArea(nestedArea, 55, 490, 905, 110, 0, bladeWidth, 0, 0, 1, 0);
@@ -408,7 +412,7 @@ describe('Grouper', () => {
       Rect.create('D', 100, 50),
     ];
 
-    const grouped = new SheetArea(2000, 600, 600, bladeWidth);
+    const grouped = createSheetArea(2000, 600);
     grouper.group(rects, grouped);
 
     checkArea(grouped, 2000, 600, 0, 0, 0, 0, 0, 0, 2, 2);
@@ -435,7 +439,7 @@ describe('Grouper', () => {
       Rect.create('A', 845, 620),
     ];
 
-    const grouped = new SheetArea(2500, 1250, 1250, bladeWidth);
+    const grouped = createSheetArea(2500, 1250);
     grouper.group(rects, grouped);
 
     checkArea(grouped, 2500, 1250, 0, 0, 0, 0, 0, 0, 0, 1);
@@ -480,7 +484,7 @@ describe('Grouper', () => {
       Rect.create('C', 845, 620),
     ];
 
-    const grouped = new SheetArea(2500, 1250, 1250, bladeWidth);
+    const grouped = createSheetArea(2500, 1250);
     grouper.group(rects, grouped);
 
     checkArea(grouped, 2500, 1250, 0, 0, 0, 0, 0, 0, 0, 2);
@@ -532,7 +536,7 @@ describe('Grouper', () => {
       Rect.create('D', 740, 30),
     ];
 
-    const grouped = new SheetArea(2000, 600, 600, bladeWidth);
+    const grouped = createSheetArea(2000, 600);
     grouper.group(rects, grouped);
 
     checkArea(grouped, 2000, 600, 0, 0, 0, 0, 0, 0, 1, 1);
@@ -581,5 +585,48 @@ describe('Grouper', () => {
 
     checkRect(nestedNestedArea.rects[0], 'C', 0, 0, 0, 0, bladeWidth, 0);
     checkRect(nestedNestedArea.rects[1], 'C', 0, 65, 0, 0, bladeWidth, 0);
+  });
+
+  it('should not use the deepest sheet area', () => {
+    const rects = [
+      Rect.create('A', 740, 30),
+      Rect.create('B', 700, 60),
+      Rect.create('B', 700, 60),
+      Rect.create('C', 368, 30),
+      Rect.create('D', 367, 30),
+    ];
+
+    const grouped = createSheetArea(740, 205);
+
+    new Grouper(bladeWidth).group(rects, grouped);
+
+    checkArea(grouped, 740, 205, 0, 0, 0, 0, 0, 0, 3, 1);
+    checkRect(grouped.rects[0], 'A', 0, 0, 0, 0, bladeWidth, 0);
+    checkRect(grouped.rects[1], 'C', 0, 165, 0, bladeWidth, bladeWidth, 0);
+    checkRect(grouped.rects[2], 'D', 373, 165, 0, 0, bladeWidth, 0);
+
+    const nestedArea = grouped.nestedAreas[0];
+    checkArea(nestedArea, 740, 130, 0, 35, 0, 0, bladeWidth, 0, 2, 0);
+  });
+
+  it('should use full width if rects plus cutting width are >= full width', () => {
+    const rects = [
+      Rect.create('A', 740, 30),
+      Rect.create('B', 700, 60),
+      Rect.create('B', 700, 60),
+      Rect.create('C', 367, 30),
+      Rect.create('C', 367, 30),
+    ];
+
+    const grouped = createSheetArea(740, 205);
+    grouper.group(rects, grouped);
+
+    checkArea(grouped, 740, 205, 0, 0, 0, 0, 0, 0, 3, 1);
+    checkRect(grouped.rects[0], 'A', 0, 0, 0, 0, bladeWidth, 0);
+    checkRect(grouped.rects[1], 'C', 0, 165, 0, bladeWidth, bladeWidth, 0);
+    checkRect(grouped.rects[2], 'C', 372, 165, 0, 1, bladeWidth, 0);
+
+    const nestedArea = grouped.nestedAreas[0];
+    checkArea(nestedArea, 740, 130, 0, 35, 0, 0, bladeWidth, 0, 2, 0);
   });
 });

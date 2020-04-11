@@ -1,6 +1,7 @@
 /* eslint-disable no-restricted-syntax */
 // Library imports
 import uuid from 'uuid';
+import _ from 'underscore';
 
 // Local data object imports
 import Rect from './Rect';
@@ -29,7 +30,14 @@ export default class Sheet {
     this._items = items;
     this._bladeWidth = bladeWidth;
     this._material = material;
-    this._sheetArea = new SheetArea(this._width, this._height, this._height, this._bladeWidth);
+    this._sheetArea = new SheetArea(
+      this._width,
+      this._height,
+      this._height,
+      this._bladeWidth,
+      undefined,
+      sheetNumber,
+    );
     this._grouper = new Grouper(this._bladeWidth);
   }
 
@@ -53,6 +61,21 @@ export default class Sheet {
     if (remainingRects.length) {
       // this._grouper.group(remainingRects, this._sheetArea);
     }
+
+    const rectsByItem = _.groupBy(
+      allRects.filter(r => typeof r.sheet !== 'undefined'),
+      'itemId',
+    );
+
+    Object.entries(rectsByItem).forEach(([itemId, rects]) => {
+      const item = this._items.filter(i => i.id === itemId).pop();
+      const sheetNumbers = new Set(rects.map(r => r.sheet));
+      if (sheetNumbers.length > 1) {
+        item.sheet = -1;
+      } else {
+        [item.sheet] = sheetNumbers;
+      }
+    });
 
     return notAddedItems;
   }

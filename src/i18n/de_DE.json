@@ -14,9 +14,11 @@
     "ItemTable": {
       "height": "Breite",
       "material": "Material",
+      "multipleSheets": "Mehrere Platten",
       "name": "Name",
       "quantity": "Anzahl",
       "sheet": "Platte",
+      "sheetNumber": "Platte _sheet_",
       "width": "Länge"
     },
     "title": "Zuschnittdaten"

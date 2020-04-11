@@ -94,4 +94,16 @@ describe('Sorter', () => {
       'B4',
     ]);
   });
+
+  it('should sort 5', () => {
+    const rects = [
+      Rect.create('A', 740, 30),
+      Rect.create('B1', 700, 60),
+      Rect.create('B2', 700, 60),
+      Rect.create('C', 368, 30),
+      Rect.create('D', 367, 30),
+    ];
+
+    checkSortResult(Sorter.sort(rects), ['A', 'B1', 'B2', 'C', 'D']);
+  });
 });

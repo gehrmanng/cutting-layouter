@@ -71,6 +71,18 @@ const ItemTable = ({ onEdit, items, materials, dispatch }) => {
     return `${material.name} (${material.width} x ${material.height} x ${material.thickness}mm)`;
   };
 
+  const renderSheetNumber = item => {
+    if (typeof item.sheet === 'undefined') {
+      return '--';
+    }
+
+    if (item.sheet >= 0) {
+      return <I18n i18nKey="ItemDataCard.ItemTable.sheetNumber" vars={{ sheet: item.sheet }} />;
+    }
+
+    return <I18n i18nKey="ItemDataCard.ItemTable.multipleSheets" />;
+  };
+
   return (
     <Table className={classes.table} size="small">
       <TableHead>
@@ -112,7 +124,7 @@ const ItemTable = ({ onEdit, items, materials, dispatch }) => {
             </TableCell>
             <TableCell align="center">{item.quantity}</TableCell>
             <TableCell>{getMaterial(item)}</TableCell>
-            <TableCell />
+            <TableCell>{renderSheetNumber(item)}</TableCell>
             <TableCell align="right" className={classes.actionColumn}>
               <IconButton onClick={handleEdit(item)}>
                 <Icon>edit</Icon>

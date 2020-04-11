@@ -228,6 +228,7 @@ export default class Grouper {
   _addMaxWidthGroups(sheetArea, rectsByHeight) {
     const notAdded = [];
 
+    // Get first available posY
     let remainingWidth = sheetArea.getRemainingWidth(0);
     if (remainingWidth === 0) {
       for (let i = 1; i < sheetArea.height; i += 1) {
@@ -237,38 +238,62 @@ export default class Grouper {
         }
       }
     }
-    const groupedByHeight = this._groupByHeight(rectsByHeight, remainingWidth);
 
-    const sortedHeights = Object.keys(groupedByHeight)
-      .map(h => parseInt(h, 10))
-      .sort((l, r) => r - l);
+    const allRects = Object.values(rectsByHeight).flat();
+    const fullWidthRects = allRects.filter(
+      r => r.width === remainingWidth || r.width + this._bladeWidth >= remainingWidth,
+    );
 
-    sortedHeights.forEach(height => {
-      const groupsOfHeight = groupedByHeight[height];
-      groupsOfHeight.sort((l, r) => {
-        let result = l.width - r.width;
-        if (result === 0) {
-          result = l.rects.length - r.rects.length;
-        }
+    const remainingRects = allRects.filter(
+      r => !fullWidthRects.length || !fullWidthRects.map(fr => fr.id).includes(r.id),
+    );
+    if (remainingRects.length) {
+      notAdded.push(...remainingRects);
+    }
 
-        return result;
-      });
-
-      groupsOfHeight.forEach(group => {
-        const coords = sheetArea.canAdd(group.width, height, true);
-        if (coords) {
-          const [, posY] = coords;
-          const localRemainingWidth = sheetArea.getRemainingWidth(posY);
-          if (Number.isNaN(localRemainingWidth)) {
-            sheetArea.extendHeight(undefined, group.rects[0]);
-          }
-          group.rects.sort((l, r) => l.width - r.width);
-          group.rects.forEach(r => sheetArea.addRect(r));
-        } else {
-          notAdded.push(...group.rects);
-        }
-      });
+    fullWidthRects.forEach(rect => {
+      if (
+        sheetArea.canAdd(rect.width, rect.height, true) &&
+        sheetArea.extendHeight(undefined, rect)
+      ) {
+        sheetArea.addRect(rect);
+      } else {
+        notAdded.push(rect);
+      }
     });
+
+    // const groupedByHeight = this._groupByHeight(rectsByHeight, remainingWidth);
+
+    // const sortedHeights = Object.keys(groupedByHeight)
+    //   .map(h => parseInt(h, 10))
+    //   .sort((l, r) => r - l);
+
+    // sortedHeights.forEach(height => {
+    //   const groupsOfHeight = groupedByHeight[height];
+    //   groupsOfHeight.sort((l, r) => {
+    //     let result = r.width - l.width;
+    //     if (result === 0) {
+    //       result = l.rects.length - r.rects.length;
+    //     }
+
+    //     return result;
+    //   });
+
+    //   groupsOfHeight.forEach(group => {
+    //     const coords = sheetArea.canAdd(group.width, height, true);
+    //     if (coords) {
+    //       const [, posY] = coords;
+    //       const localRemainingWidth = sheetArea.getRemainingWidth(posY);
+    //       if (Number.isNaN(localRemainingWidth)) {
+    //         sheetArea.extendHeight(undefined, group.rects[0]);
+    //       }
+    //       group.rects.sort((l, r) => l.width - r.width);
+    //       group.rects.forEach(r => sheetArea.addRect(r));
+    //     } else {
+    //       notAdded.push(...group.rects);
+    //     }
+    //   });
+    // });
 
     return notAdded;
   }
@@ -283,10 +308,31 @@ export default class Grouper {
   _addNonFullSizeRects(sheetArea, remainingRects) {
     const notAddedRects = [];
 
-    Sorter.sort(remainingRects);
+    const sorted = Sorter.sort(remainingRects);
 
-    remainingRects.forEach(rect => {
-      const { width, height, name, index } = rect;
+    sorted.forEach((rect, index) => {
+      const { width, height, sheet } = rect;
+
+      if (typeof sheet !== 'undefined') {
+        return;
+      }
+
+      const remainingSameHeight = sorted.slice(index).filter(r => r.height === height);
+      const grouped = this._groupByMaxWidths(remainingSameHeight, sheetArea.width);
+
+      if (grouped.length) {
+        let added = false;
+        grouped.forEach(group => {
+          if (sheetArea.canAdd(group.width, height, true)) {
+            group.rects.forEach(r => sheetArea.addRect(r));
+            added = true;
+          }
+        });
+
+        if (added) {
+          return;
+        }
+      }
 
       if (sheetArea.parent && sheetArea.canAdd(width, height)) {
         const coords = sheetArea.canAdd(width, height);
@@ -338,9 +384,9 @@ export default class Grouper {
             notAddedRects.push(...notGroupedRects);
           }
 
-          const [, posY] = sheetArea.canAdd(newNestedArea.fullWidth, newNestedArea.fullHeight);
+          const canAdd = sheetArea.canAdd(newNestedArea.fullWidth, newNestedArea.fullHeight);
 
-          if (posY === false) {
+          if (!canAdd) {
             throw new Error('Something went wrong');
           }
 

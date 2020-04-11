@@ -70,16 +70,24 @@ const ItemDialog = ({ onClose, open, item, materials }) => {
    * Click handler that is called when the save button is clicked.
    */
   const handleSave = () => {
-    onClose(
-      new Item(
+    let newItem;
+    if (item) {
+      newItem = Item.of(item);
+      newItem.width = parseInt(values.width, 10);
+      newItem.height = parseInt(values.height, 10);
+      newItem.quantity = parseInt(values.quantity, 10);
+      newItem.material = parseInt(values.material, 10);
+    } else {
+      newItem = new Item(
         values.name,
         parseInt(values.width, 10),
         parseInt(values.height, 10),
         parseInt(values.quantity, 10),
         parseInt(values.material, 10),
         item ? item.id : undefined,
-      ),
-    );
+      );
+    }
+    onClose(newItem);
     setValues(initialItem);
   };
 
@@ -142,7 +150,8 @@ const ItemDialog = ({ onClose, open, item, materials }) => {
             name="material"
             labelId="material-label"
             onChange={handleInputChange}
-            value={values.material}>
+            value={values.material}
+          >
             {materials.map(material => (
               <MenuItem value={material.id} key={material.id}>
                 {`${material.name} (${material.width}x${material.height}x${material.thickness}mm)`}

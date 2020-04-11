@@ -15,7 +15,7 @@ const initialState = {
     new Material(6, 'MDF', 1200, 600, 12),
     new Material(7, 'MDF', 2500, 1250, 15),
     new Material(8, 'Leimholz Eiche', 2000, 600, 20, true),
-    new Material(9, 'TestMaterial', 1000, 600, 10),
+    new Material(9, 'TestMaterial', 740, 205, 10),
   ],
 };
 

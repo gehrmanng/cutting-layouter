@@ -42,6 +42,7 @@ export default class Rect {
       bottom: 0,
       left: 0,
     };
+    this._sheet = undefined;
   }
 
   /** *************************** */
@@ -120,7 +121,19 @@ export default class Rect {
     return this._posX + this.fullWidth;
   }
 
+  get sheet() {
+    return this._sheet;
+  }
+
+  set sheet(sheet) {
+    this._sheet = sheet;
+  }
+
   get width() {
     return this._width;
+  }
+
+  set width(width) {
+    this._width = width;
   }
 }

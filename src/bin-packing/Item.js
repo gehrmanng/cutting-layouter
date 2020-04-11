@@ -8,6 +8,19 @@ import Rect from './Rect';
  * A layout item.
  */
 export default class Item {
+  static of = otherItem => {
+    const newItem = new Item(
+      otherItem.name,
+      otherItem.width,
+      otherItem.height,
+      otherItem.quantity,
+      otherItem.material,
+      otherItem.id,
+    );
+    newItem.sheet = otherItem.sheet;
+    return newItem;
+  };
+
   /**
    * Constructor.
    *
@@ -24,6 +37,7 @@ export default class Item {
     this._dimensions = Rect.create(name, width, height);
     this._quantity = quantity;
     this._material = material;
+    this._sheet = undefined;
   }
 
   serialize() {
@@ -53,6 +67,10 @@ export default class Item {
     return this._dimensions.height;
   }
 
+  set height(height) {
+    this._dimensions.height = height;
+  }
+
   get id() {
     return this._id;
   }
@@ -61,15 +79,39 @@ export default class Item {
     return this._material;
   }
 
+  set material(material) {
+    this._material = material;
+  }
+
   get name() {
     return this._name;
+  }
+
+  set name(name) {
+    this._name = name;
   }
 
   get quantity() {
     return this._quantity;
   }
 
+  set quantity(quantity) {
+    this._quantity = quantity;
+  }
+
+  get sheet() {
+    return this._sheet;
+  }
+
+  set sheet(sheet) {
+    this._sheet = sheet;
+  }
+
   get width() {
     return this._dimensions.width;
+  }
+
+  set width(width) {
+    this._dimensions.width = width;
   }
 }

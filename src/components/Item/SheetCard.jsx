@@ -21,6 +21,11 @@ import SheetSummary from './SheetSummary';
 import { Item, Material, Packer } from '../../bin-packing';
 import Job from '../../data/Job';
 
+// Local Redux action imports
+import { updateItem } from '../../actions/itemActions';
+
+import useDeepEffect from '../../effects/useDeepEffect';
+
 // Styling definitions
 const useStyles = makeStyles(theme => ({
   root: {
@@ -41,7 +46,7 @@ const useStyles = makeStyles(theme => ({
  * @param {Item[]} items - All available layout items
  * @returns {JSX} The component markup
  */
-const SheetCard = ({ items, materials }) => {
+const SheetCard = ({ items, materials, dispatch }) => {
   const classes = useStyles();
   const theme = useTheme();
 
@@ -52,12 +57,19 @@ const SheetCard = ({ items, materials }) => {
   /**
    * Side effect to pack the available layout items.
    */
-  useEffect(() => {
-    const packer = new Packer();
-    const packedSheets = packer.pack(items, materials);
-    setSheets(packedSheets);
-    job.sheets = packedSheets;
-  }, [items]);
+  useDeepEffect(
+    () => {
+      const packer = new Packer();
+      const packedSheets = packer.pack(items, materials);
+      setSheets(packedSheets);
+      job.sheets = packedSheets;
+      items.forEach(item => {
+        dispatch(updateItem(item));
+      });
+    },
+    items,
+    ['width', 'height', 'material', 'name', 'quantity'],
+  );
 
   return (
     <Card className={classes.root} ref={cardRef}>
@@ -93,6 +105,7 @@ const SheetCard = ({ items, materials }) => {
 SheetCard.propTypes = {
   items: PropTypes.arrayOf(PropTypes.instanceOf(Item)),
   materials: PropTypes.arrayOf(PropTypes.instanceOf(Material)),
+  dispatch: PropTypes.func.isRequired,
 };
 
 // Default property values

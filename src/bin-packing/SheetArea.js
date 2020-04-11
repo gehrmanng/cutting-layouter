@@ -15,7 +15,7 @@ export default class SheetArea {
    * @param {number} bladeWidth The blade width
    * @param {SheetArea} [parent] The parent of this sheet area
    */
-  constructor(width, height, maxHeight, bladeWidth, parent) {
+  constructor(width, height, maxHeight, bladeWidth, parent, sheet) {
     this._id = uuid();
     this._bladeWidth = bladeWidth;
     this._cuttingWidth = {
@@ -33,6 +33,7 @@ export default class SheetArea {
     this._rects = [];
     this._width = width;
     this._grid = new Array(height).fill(0);
+    this._sheet = sheet;
   }
 
   /**
@@ -44,6 +45,7 @@ export default class SheetArea {
     const [posX, posY] = this._getGridPosition(newNestedArea.fullWidth, newNestedArea.fullHeight);
     newNestedArea.posX = posX;
     newNestedArea.posY = posY;
+    newNestedArea.sheet = this._sheet;
     this._setCuttings(newNestedArea);
     this._nestedAreas.push(newNestedArea);
     this.updateGrid(posY, newNestedArea.rightPosition, newNestedArea.fullHeight);
@@ -58,6 +60,7 @@ export default class SheetArea {
     const [posX, posY] = this._getGridPosition(newRect.fullWidth, newRect.fullHeight);
     newRect.posX = posX;
     newRect.posY = posY;
+    newRect.sheet = this._sheet;
     this._setCuttings(newRect);
     this._rects.push(newRect);
     this.updateGrid(posY, newRect.posX + newRect.fullWidth, newRect.fullHeight);
@@ -75,7 +78,11 @@ export default class SheetArea {
     const [posX, posY] = this._getGridPosition(width, height, useCurrentHeight);
 
     const canAdd =
-      posX >= 0 && posY >= 0 && (!fillRemaining || (fillRemaining && posX + width === this._width));
+      posX >= 0 &&
+      posY >= 0 &&
+      (!fillRemaining ||
+        (fillRemaining &&
+          (posX + width === this._width || posX + width + this._bladeWidth >= this._width)));
     return canAdd ? [posX, posY] : false;
   }
 
@@ -439,6 +446,14 @@ export default class SheetArea {
 
   get rightPosition() {
     return this._posX + this.fullWidth;
+  }
+
+  get sheet() {
+    return this._sheet;
+  }
+
+  set sheet(sheet) {
+    this._sheet = sheet;
   }
 
   get usedArea() {
