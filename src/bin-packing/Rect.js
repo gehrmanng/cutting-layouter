@@ -11,9 +11,10 @@ export default class Rect {
    * @param {string} name - The rectangle name
    * @param {number} width - The rectangle width
    * @param {number} height - The rectangle height
+   * @param {number} index - The index if the same rectangle exists multiple times
    */
-  static create(name, width, height) {
-    return new Rect(undefined, width, height, 0, 0, name);
+  static create(name, width, height, index) {
+    return new Rect(undefined, width, height, 0, 0, name, index);
   }
 
   /**

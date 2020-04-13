@@ -104,47 +104,53 @@ export default class Grouper {
    * @param {SheetArea} parent The parent sheet area
    */
   _optimizeNestedAreaDimensions(parent) {
-    const nestedByYPosition = _.groupBy(parent.nestedAreas, 'posY');
-    const yPositions = Object.keys(nestedByYPosition)
-      .map(k => parseInt(k, 10))
-      .sort((l, r) => l - r);
-    const maxYPosition = _.last(yPositions);
+    const { nestedAreas, children } = parent;
 
-    yPositions.forEach(posY => {
-      const nestedAreas = nestedByYPosition[posY.toString()];
-      const maxPosX = Math.max(...nestedAreas.map(na => na.posX));
+    if (!nestedAreas.length) {
+      return;
+    }
+
+    nestedAreas.forEach(area => {
+      const { posX, posY, rightPosition, bottomPosition } = area;
+
+      // Has a child below if any child starts at the same X position and has a higher Y position
+      const hasBelow = children.filter(c => c.posX === posX && c.posY > posY).length > 0;
+      // Has a child beside if any child starts right to the end and has a Y position between top and bottom
+      const hasBeside =
+        children.filter(c => c.posX >= rightPosition && c.posY >= posY && c.posY <= bottomPosition)
+          .length > 0;
 
       const remainingWidth = parent.getRemainingWidth(posY);
-      if (posY < maxYPosition) {
-        const rightmostArea = nestedAreas.filter(na => na.posX === maxPosX).pop();
-        if (remainingWidth > 0) {
-          rightmostArea.extendWidth(remainingWidth + rightmostArea.cuttingWidth.right);
-          rightmostArea.cuttingWidth = { right: 0 };
-        }
+      const remainingHeight = area.maxHeight - area.fullHeight;
 
-        if (rightmostArea.nestedAreas && rightmostArea.nestedAreas.length) {
-          this._optimizeNestedAreaDimensions(rightmostArea);
-        }
-      } else {
-        nestedAreas.forEach(nestedArea => {
-          const remainingHeight = nestedArea.maxHeight - nestedArea.fullHeight;
-          if (
-            nestedArea.posX === maxPosX &&
-            remainingWidth > 0 &&
-            remainingHeight >= 0 &&
-            remainingWidth < remainingHeight
-          ) {
-            nestedArea.extendWidth(remainingWidth + nestedArea.cuttingWidth.right);
-            nestedArea.cuttingWidth = { right: 0 };
-          } else if (remainingHeight > 0) {
-            nestedArea.extendHeight(remainingHeight);
-            nestedArea.cuttingWidth = { bottom: 0 };
-          }
+      // Can only extend the width if something is below
+      if (hasBelow && !hasBeside && remainingWidth > 0) {
+        area.extendWidth(remainingWidth + area.cuttingWidth.right);
+        area.cuttingWidth.right = 0;
+      }
 
-          if (nestedArea.nestedAreas && nestedArea.nestedAreas.length) {
-            this._optimizeNestedAreaDimensions(nestedArea);
-          }
-        });
+      // Can only extend the hight if something is beside
+      if (hasBeside && !hasBelow && remainingHeight > 0) {
+        area.extendHeight(remainingHeight);
+        area.cuttingWidth.bottom = 0;
+      }
+
+      if (!hasBelow && !hasBeside) {
+        // If remainingWidth is zero nothing needs to be extended
+        if (remainingWidth > 0 && remainingWidth < remainingHeight) {
+          // If remainingWidth is above zero but smaller than the remaining height the width should be extended
+          area.extendWidth(remainingWidth + area.cuttingWidth.right);
+          area.cuttingWidth.right = 0;
+        } else if (remainingWidth > 0 && remainingHeight > 0) {
+          // Otherwise extend the height
+          area.extendHeight(remainingHeight);
+          area.cuttingWidth.bottom = 0;
+        }
+      }
+
+      // Re-run the optimization for any nested areas
+      if (area.nestedAreas && area.nestedAreas.length) {
+        this._optimizeNestedAreaDimensions(area);
       }
     });
   }
@@ -309,7 +315,6 @@ export default class Grouper {
     const notAddedRects = [];
 
     const sorted = Sorter.sort(remainingRects);
-
     sorted.forEach((rect, index) => {
       const { width, height, sheet } = rect;
 
