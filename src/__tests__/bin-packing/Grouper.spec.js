@@ -150,18 +150,26 @@ describe('Grouper', () => {
     const grouped = createSheetArea(610, 200);
     grouper.group(rects, grouped);
 
-    checkArea(grouped, 610, 200, 0, 0, 0, 0, 0, 0, 6, 0);
+    checkArea(grouped, 610, 200, 0, 0, 0, 0, 0, 0, 0, 3);
     checkRemainingWidth(grouped, [
       [0, 0],
       [105, 0],
     ]);
 
-    checkRect(grouped.rects[0], 'C', 0, 0, 0, bladeWidth, bladeWidth, 0);
-    checkRect(grouped.rects[1], 'B', 305, 0, 0, bladeWidth, bladeWidth, 0);
-    checkRect(grouped.rects[2], 'A', 510, 0, 0, 0, bladeWidth, 0);
-    checkRect(grouped.rects[3], 'D', 0, 105, 0, bladeWidth, 0, 0);
-    checkRect(grouped.rects[4], 'E', 305, 105, 0, bladeWidth, 0, 0);
-    checkRect(grouped.rects[5], 'F', 510, 105, 0, 0, 0, 0);
+    const area1 = grouped.nestedAreas[0];
+    checkArea(area1, 305, 200, 0, 0, 0, bladeWidth, 0, 0, 2, 0);
+    checkRect(area1.rects[0], 'C', 0, 0, 0, 0, bladeWidth, 0);
+    checkRect(area1.rects[1], 'D', 0, 105, 0, 0, 0, 0);
+
+    const area2 = grouped.nestedAreas[1];
+    checkArea(area2, 205, 200, 305, 0, 0, bladeWidth, 0, 0, 2, 0);
+    checkRect(area2.rects[0], 'B', 0, 0, 0, 0, bladeWidth, 0);
+    checkRect(area2.rects[1], 'E', 0, 105, 0, 0, 0, 0);
+
+    const area3 = grouped.nestedAreas[2];
+    checkArea(area3, 100, 200, 510, 0, 0, 0, 0, 0, 2, 0);
+    checkRect(area3.rects[0], 'A', 0, 0, 0, 0, bladeWidth, 0);
+    checkRect(area3.rects[1], 'F', 0, 105, 0, 0, 0, 0);
   });
 
   it('should pack three items into a wider and higher sheet', () => {
@@ -382,26 +390,30 @@ describe('Grouper', () => {
     const grouped = createSheetArea(2000, 600);
     grouper.group(rects, grouped);
 
-    checkArea(grouped, 2000, 600, 0, 0, 0, 0, 0, 0, 5, 1);
+    checkArea(grouped, 2000, 600, 0, 0, 0, 0, 0, 0, 2, 1);
     checkRemainingWidth(grouped, [
       [0, 0],
       [55, 0],
-      [599, 1040],
+      [599, 1095],
     ]);
 
     checkRect(grouped.rects[0], 'A', 0, 0, 0, bladeWidth, 0, 0);
     checkRect(grouped.rects[1], 'E', 905, 0, 0, 0, bladeWidth, 0);
-    checkRect(grouped.rects[2], 'B', 905, 55, 0, bladeWidth, bladeWidth, 0);
-    checkRect(grouped.rects[3], 'C', 1505, 55, 0, bladeWidth, bladeWidth, 0);
-    checkRect(grouped.rects[4], 'D', 1905, 55, 0, 0, bladeWidth, 0);
 
     const nestedArea = grouped.nestedAreas[0];
-    checkArea(nestedArea, 55, 490, 905, 110, 0, bladeWidth, 0, 0, 1, 0);
+    checkArea(nestedArea, 1095, 540, 905, 55, 0, 0, bladeWidth, 0, 3, 1);
     checkRemainingWidth(nestedArea, [
       [0, 0],
-      [55, 0],
+      [54, 0],
+      [56, 1040],
     ]);
-    checkRect(nestedArea.rects[0], 'F', 0, 0, 0, 0, bladeWidth, 0);
+
+    checkRect(nestedArea.rects[0], 'B', 0, 0, 0, bladeWidth, bladeWidth, 0);
+    checkRect(nestedArea.rects[1], 'C', 600, 0, 0, bladeWidth, bladeWidth, 0);
+    checkRect(nestedArea.rects[2], 'D', 1000, 0, 0, 0, bladeWidth, 0);
+
+    checkArea(nestedArea.nestedAreas[0], 55, 480, 0, 55, 0, bladeWidth, 0, 0, 1, 0);
+    checkRect(nestedArea.nestedAreas[0].rects[0], 'F', 0, 0, 0, 0, 0, 0);
   });
 
   it('should pack three + one items', () => {
