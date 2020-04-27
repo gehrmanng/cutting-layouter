@@ -155,7 +155,10 @@ export default class SheetArea {
 
   extendHeightForChild(newHeight, child) {
     let newChildBottom = child.posY + newHeight;
-    if (newChildBottom > this._maxHeight) {
+    if (
+      newChildBottom > this._maxHeight &&
+      newChildBottom - child.cuttingWidth.bottom > this._maxHeight
+    ) {
       return false;
     }
 
@@ -278,6 +281,20 @@ export default class SheetArea {
     return true;
   }
 
+  canExtendWidth(width) {
+    const hasBeside =
+      this._parent.children.filter(
+        c => c.posX >= this.rightPosition && c.posY >= this._posY && c.posY <= this.bottomPosition,
+      ).length > 0;
+
+    if (hasBeside) {
+      return false;
+    }
+
+    const parentRemainingWidth = this._parent.getRemainingWidth(this._posY);
+    return parentRemainingWidth >= width;
+  }
+
   /**
    * Extend the width of this sheet area by the given value.
    *
@@ -317,6 +334,10 @@ export default class SheetArea {
   getMaximumHeight(width, height) {
     const [posX, posY] = this._getGridPosition(width, height);
     if (posX >= 0 && posY >= 0) {
+      if (posY >= this._height) {
+        return this._maxHeight - posY - this._bladeWidth;
+      }
+
       return this._maxHeight - posY;
     }
 
