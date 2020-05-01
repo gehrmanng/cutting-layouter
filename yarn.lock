@@ -3499,6 +3499,12 @@ doctrine@^3.0.0:
   dependencies:
     esutils "^2.0.2"
 
+"doctrine@git+https://gitlab.com/gumen/doctrine.git":
+  version "3.0.0"
+  resolved "git+https://gitlab.com/gumen/doctrine.git#df19a22eacc97fc8a3b718011892b0d31278df8e"
+  dependencies:
+    esutils "^2.0.2"
+
 dom-converter@^0.2:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/dom-converter/-/dom-converter-0.2.0.tgz#6721a9daee2e293682955b6afe416771627bb768"
@@ -8477,7 +8483,14 @@ prettier-linter-helpers@^1.0.0:
   dependencies:
     fast-diff "^1.1.2"
 
-prettier@^1.19.1:
+"prettier-plugin-jsdoc@https://gitlab.com/gumen/prettier-plugin-jsdoc.git":
+  version "1.0.0"
+  resolved "https://gitlab.com/gumen/prettier-plugin-jsdoc.git#82b1be36fd34b319df782a739ad3dc4ed4dc9d21"
+  dependencies:
+    doctrine "git+https://gitlab.com/gumen/doctrine.git"
+    prettier "^1.18.2"
+
+prettier@^1.18.2, prettier@^1.19.1:
   version "1.19.1"
   resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.19.1.tgz#f7d7f5ff8a9cd872a7be4ca142095956a60797cb"
   integrity sha512-s7PoyDv/II1ObgQunCbB9PdLmUcBZcnWOcxDh7O0N/UwDEsHyqkW+Qh28jW+mVuCdx7gLB0BotYI1Y6uI9iyew==

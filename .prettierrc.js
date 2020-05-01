@@ -6,4 +6,7 @@ module.exports = {
   tabWidth: 2,
   jsxBracketSameLine: true,
   eslintIntegration: true,
+  parser: 'jsdoc-parser',
+  jsdocDescriptionTag: false,
+  jsdocPrintWidth: 100,
 };
