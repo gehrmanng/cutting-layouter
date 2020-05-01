@@ -72,7 +72,8 @@ export default class SheetArea {
    * @param {number} width The required width
    * @param {number} height The required height
    * @param {boolean} fillRemaining Flag indicating if the given width should fill all remaining width
-   * @returns {boolean|number[]} The x and y coordinates if the required space is available, false otherwise
+   * @return {boolean|Array.<number>} The x and y coordinates if the required space is available,
+   *                                  false otherwise
    */
   canAdd(width, height, fillRemaining, useCurrentHeight) {
     const [posX, posY] = this._getGridPosition(width, height, useCurrentHeight);
@@ -180,18 +181,6 @@ export default class SheetArea {
       return true;
     }
 
-    let canExtend = true;
-    for (let i = child.bottomPosition; i < newChildBottom; i += 1) {
-      if (this._grid[i] > child.posX) {
-        canExtend = false;
-        break;
-      }
-    }
-
-    if (!canExtend) {
-      return false;
-    }
-
     if (this._parent) {
       const parentExtended = this._parent.extendHeightForChild(newChildBottom, this);
       if (!parentExtended) {
@@ -217,7 +206,7 @@ export default class SheetArea {
    * Extend the height of this sheet area by the given value.
    *
    * @param {number} height The extension height
-   * @returns {boolean} True if the height could be extended, false otherwise
+   * @return {boolean} True if the height could be extended, false otherwise
    */
   extendHeightOld(height, usedWidth = 0) {
     if (height === 0) {
@@ -325,11 +314,13 @@ export default class SheetArea {
   }
 
   /**
-   * Get the maximum height that a nested sheet area with the given width and height could be extended to.
+   * Get the maximum height that a nested sheet area with the given width and height could be extended
+   * to.
    *
    * @param {number} width The required width
    * @param {number} height The required height
-   * @returns {number} The maximum height or -1 if there is not enough space for the given width and height
+   * @return {number} The maximum height or -1 if there is not enough space for the given width and
+   *                  height
    */
   getMaximumHeight(width, height) {
     const [posX, posY] = this._getGridPosition(width, height);
@@ -348,16 +339,22 @@ export default class SheetArea {
    * Get the remaining width at the given height.
    *
    * @param {number} atHeight The height to get the remaining width for
-   * @returns {number} The remaining width
+   * @return {number} The remaining width
    */
   getRemainingWidth(atHeight) {
     const remaining = this._width - this._grid[atHeight];
     return remaining;
   }
 
-  /** *************************** */
-  /** **** Getters & Setters **** */
-  /** *************************** */
+  /**
+   * **************************
+   */
+  /**
+   * *** Getters & Setters ****
+   */
+  /**
+   * **************************
+   */
 
   get bottomPosition() {
     return this._posY + this.fullHeight;
