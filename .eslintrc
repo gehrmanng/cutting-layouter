@@ -8,6 +8,7 @@
     "jest": true,
   },
   "rules": {
+    "complexity": ["warn", 15],
     "react/forbid-prop-types": "off",
     "no-underscore-dangle": "off",
     "no-param-reassign": ["error", { "props": false }],

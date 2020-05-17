@@ -4,48 +4,26 @@ import { ADD_ITEM, REMOVE_ITEM, UPDATE_ITEM } from '../actions/actionTypes';
 // Local data object imports
 import { Item } from '../bin-packing';
 
+import osbItems from '../data/osbitemdata';
+import { testItems } from '../data/testitemdata';
+
 // Initial state definition
 const initialState = {
   items: [
-    new Item('A', 900, 600, 1, 8),
-    new Item('B', 440, 390, 2, 8),
-    // new Item('D', 740, 100, 1, 8),
-    new Item('D', 740, 30, 2, 8),
-    new Item('C', 700, 60, 2, 8),
-    // new Item('E', 370, 30, 2, 8),
-    // new Item('A', 900, 600, 1),
-    // new Item('B', 525, 390, 2),
-    // new Item('D', 1055, 100, 1),
-    // new Item('C', 1055, 60, 2),
-    // new Item('A', 200, 400, 1, 9),
-    // new Item('B', 50, 350, 1, 9),
-    // new Item('C', 80, 350, 1, 9),
-    // new Item('B', 1095, 50, 1, 8),
-    // new Item('C', 50, 480, 1, 8),
-    new Item('E', 100, 50, 23, 8),
-    // new Item('A', 1000, 50, 1, 9),
-    // new Item('C', 50, 535, 1, 8),
-    // new Item('A', 620, 200, 4, 1),
-    // new Item('B', 620, 100, 4, 1),
-    // new Item('C', 845, 620, 4, 1),
-    // new Item('A', 740, 30, 1, 9),
-    // new Item('B', 700, 60, 2, 9),
-    // new Item('C', 368, 30, 1, 9),
-    // new Item('E', 367, 30, 1, 9),
-    // new Item('A', 900, 600, 1, 9),
-    // new Item('B', 595, 50, 1, 9),
-    // new Item('C', 395, 50, 1, 9),
-    // new Item('D', 95, 50, 1, 9),
-    // new Item('E', 1095, 50, 1, 9),
-    // new Item('F', 50, 480, 1, 9),
+    ...testItems.gt20,
+    // ...osbItems.s7,
+
+    // Remove tests
+    // new Item('X_A', 400, 100, 1, 10),
+    // new Item('X_B', 250, 50, 2, 10),
   ],
 };
 
 /**
  * A Redux reducer for layout items.
  *
- * @param {object} state - The reducer state
- * @param {object} action - The reducer action
+ * @param {object} state The reducer state
+ * @param {object} action The reducer action
  */
 const reducer = (state = initialState, action) => {
   switch (action.type) {

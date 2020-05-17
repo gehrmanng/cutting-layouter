@@ -35,11 +35,11 @@ const useStyles = makeStyles({
 /**
  * A functional component that renders a table containing all available layout items.
  *
- * @param {function} onEdit - A callback function that is called when the edit button
- *                            of a single item has been clicked
- * @param {Item[]} items - All available layout items
- * @param {function} dispatch - The Redux dispatch function
- * @returns {JSX} The component markup
+ * @param {function} onEdit A callback function that is called when the edit button of a single item
+ *                          has been clicked
+ * @param {Array.<Item>} items All available layout items
+ * @param {function} dispatch The Redux dispatch function
+ * @return {JSX} The component markup
  */
 const ItemTable = ({ onEdit, items, materials, dispatch }) => {
   const classes = useStyles();
@@ -47,7 +47,7 @@ const ItemTable = ({ onEdit, items, materials, dispatch }) => {
   /**
    * Click handler that is called when the delete button has been clicked.
    *
-   * @param {string} itemId - The id of the item that should be deleted
+   * @param {string} itemId The id of the item that should be deleted
    */
   const handleDelete = itemId => () => {
     dispatch(removeItem(itemId));
@@ -56,7 +56,7 @@ const ItemTable = ({ onEdit, items, materials, dispatch }) => {
   /**
    * Click handler that is called when the edit button has been clicked.
    *
-   * @param {Item} item - The item to be edited
+   * @param {Item} item The item to be edited
    */
   const handleEdit = item => () => {
     onEdit(item);
@@ -157,7 +157,7 @@ ItemTable.defaultProps = {
 /**
  * Mapping function to extract the required properties from the Redux store.
  *
- * @param {object} state - The Redux state
+ * @param {object} state The Redux state
  */
 const mapStateToProps = state => ({
   items: state.itemReducer.items,

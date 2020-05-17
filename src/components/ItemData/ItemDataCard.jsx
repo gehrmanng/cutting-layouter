@@ -23,8 +23,8 @@ const useStyles = makeStyles({
 /**
  * A functional component that renders a card showing the layout item data.
  *
- * @param {function} dispatch - The Redux dispatch function
- * @returns {JSX} The component markup
+ * @param {function} dispatch The Redux dispatch function
+ * @return {JSX} The component markup
  */
 const ItemDataCard = ({ dispatch }) => {
   const classes = useStyles();
@@ -34,7 +34,7 @@ const ItemDataCard = ({ dispatch }) => {
   /**
    * Click handler that is called when the edit button of a single item is clicked.
    *
-   * @param {Item} item - The item to be edited
+   * @param {Item} item The item to be edited
    */
   const handleEditClick = item => {
     setSelectedItem(item);
@@ -44,8 +44,8 @@ const ItemDataCard = ({ dispatch }) => {
   /**
    * Callback function that is called when the item dialog has been closed.
    *
-   * @param {Item} item - The created or updated layout item or undefined
-   *                      if the dialog has been canceled
+   * @param {Item} item The created or updated layout item or undefined if the dialog has been
+   *                    canceled
    */
   const handleCloseDialog = item => {
     if (item) {

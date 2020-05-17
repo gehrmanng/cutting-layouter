@@ -4,6 +4,9 @@ import { ADD_MATERIAL, REMOVE_MATERIAL, UPDATE_MATERIAL } from '../actions/actio
 // Local data object imports
 import { Material } from '../bin-packing';
 
+// Data Import
+import { materials } from '../data/testitemdata';
+
 // Initial state definition
 const initialState = {
   materials: [
@@ -15,15 +18,19 @@ const initialState = {
     new Material(6, 'MDF', 1200, 600, 12),
     new Material(7, 'MDF', 2500, 1250, 15),
     new Material(8, 'Leimholz Eiche', 2000, 600, 20, true),
-    new Material(9, 'TestMaterial', 740, 205, 10),
+    new Material(9, 'TestMaterial', 885, 600, 10),
+    new Material(10, 'Remove Test Material', 600, 200, 10),
+    new Material(11, 'OSB Verlegeplatte', 2040, 665, 12, true),
+    new Material(12, 'OSB Verlegeplatte', 2040, 665, 15, true),
+    ...materials,
   ],
 };
 
 /**
  * A Redux reducer for layout items.
  *
- * @param {object} state - The reducer state
- * @param {object} action - The reducer action
+ * @param {object} state The reducer state
+ * @param {object} action The reducer action
  */
 const reducer = (state = initialState, action) => {
   switch (action.type) {

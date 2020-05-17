@@ -23,7 +23,7 @@ export default class Sorter {
       result = r1.index - r2.index;
     }
 
-    // console.log(r1, r2, area2 - area1, areaDiff, result);
+    // console.log(r1,< r2, area2 - area1, areaDiff, result);
     return result;
   }
 }

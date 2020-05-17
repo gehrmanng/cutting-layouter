@@ -19,9 +19,9 @@ const useStyles = makeStyles(theme => ({
 /**
  * A functional component that renders a layout bin.
  *
- * @param {Bin} bin - The bin to be rendered
- * @param {number} scale - The zoom scale
- * @returns {JSX} The component markup
+ * @param {Bin} bin The bin to be rendered
+ * @param {number} scale The zoom scale
+ * @return {JSX} The component markup
  */
 const ItemContainer = ({ sheetArea, scale }) => {
   const classes = useStyles();
@@ -48,10 +48,10 @@ const ItemContainer = ({ sheetArea, scale }) => {
       data-width={sheetArea.width}
       data-height={sheetArea.height}
       data-fullheight={sheetArea.fullHeight}
+      data-maxheight={sheetArea.maxHeight}
       data-posx={sheetArea.posX}
       data-posy={sheetArea.posY}
-      data-cuts={sheetArea.numberOfCuts}
-    >
+      data-cuts={sheetArea.numberOfCuts}>
       {sheetArea.rects &&
         sheetArea.rects.map(rect => <Item key={rect.id} rect={rect} scale={scale} />)}
       {sheetArea.nestedAreas &&

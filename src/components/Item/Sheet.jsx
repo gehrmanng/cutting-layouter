@@ -26,8 +26,8 @@ const useStyles = makeStyles(theme => ({
 /**
  * A functional component that renders a layout sheet.
  *
- * @param {Bin[]} bins - All layout bins to be rendered
- * @returns {JSX} The component markup
+ * @param {Array.<Bin>} bins All layout bins to be rendered
+ * @return {JSX} The component markup
  */
 const Sheet = ({ maxWidth, sheet }) => {
   const classes = useStyles();
@@ -42,6 +42,7 @@ const Sheet = ({ maxWidth, sheet }) => {
     }
 
     setScale(Math.min(1, maxWidth / sheet.width));
+    // setScale(1);
   }, [sheet]);
 
   if (!sheet) {

@@ -2,6 +2,8 @@
 import _ from 'underscore';
 import uuid from 'uuid';
 
+import Rect from './Rect';
+
 /**
  * An area within a layout sheet.
  */
@@ -49,6 +51,8 @@ export default class SheetArea {
     this._setCuttings(newNestedArea);
     this._nestedAreas.push(newNestedArea);
     this.updateGrid(posY, newNestedArea.rightPosition, newNestedArea.fullHeight);
+
+    return newNestedArea;
   }
 
   /**
@@ -346,14 +350,41 @@ export default class SheetArea {
     return remaining;
   }
 
+  removeChildren(position, width) {
+    const toBeRemoved = this.children.filter(c => c.posY < position && this._grid[c.posY] <= width);
+
+    if (!toBeRemoved.length) {
+      return [];
+    }
+
+    const rects = [];
+    toBeRemoved.forEach(tbr => {
+      if (tbr instanceof Rect) {
+        rects.push(tbr);
+        this._rects = this._rects.filter(r => r.id !== tbr.id);
+      } else {
+        rects.push(...this._getRects(tbr));
+        this._nestedAreas = this._nestedAreas.filter(na => na.id !== tbr.id);
+      }
+      this.updateGrid(tbr.posY, -tbr.fullWidth, tbr.fullHeight);
+    });
+
+    return rects;
+  }
+
+  _getRects = area => {
+    const rects = [...area.rects];
+    if (area.nestedAreas.length) {
+      area.nestedAreas.forEach(a => {
+        rects.push(...this._getRects(a));
+      });
+    }
+
+    return rects;
+  };
+
   /**
-   * **************************
-   */
-  /**
-   * *** Getters & Setters ****
-   */
-  /**
-   * **************************
+   * ************************* *** Getters & Setters **** **************************
    */
 
   get bottomPosition() {
@@ -514,8 +545,11 @@ export default class SheetArea {
 
   updateGrid(posY, width, height) {
     for (let i = posY; i < posY + height; i += 1) {
-      this._grid[i] = width;
-      // console.log('');
+      if (width < 0) {
+        this._grid[i] += width;
+      } else {
+        this._grid[i] = width;
+      }
     }
   }
 
