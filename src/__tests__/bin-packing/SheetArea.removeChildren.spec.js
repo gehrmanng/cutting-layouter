@@ -1,18 +1,18 @@
 import { SheetArea, Rect } from '../../bin-packing';
 
-describe('SheetArea#removeChildren', () => {
-  const bladeWidth = 5;
+const bladeWidth = 5;
 
-  const checkGrid = (grid, top, bottom, width) => {
-    for (let i = top; i < bottom; i += 1) {
-      try {
-        expect(grid[i]).toBe(width);
-      } catch (e) {
-        throw new Error(`Expected used width at ${i} to be ${width} but was ${grid[i]}`);
-      }
+const checkGrid = (grid, top, bottom, width) => {
+  for (let i = top; i < bottom; i += 1) {
+    try {
+      expect(grid[i]).toBe(width);
+    } catch (e) {
+      throw new Error(`Expected used width at ${i} to be ${width} but was ${grid[i]}`);
     }
-  };
+  }
+};
 
+describe('SheetArea#removeChildren', () => {
   it('should remove a rect from its parent area', () => {
     const area = new SheetArea(100, 90, 100, bladeWidth);
     const rect = new Rect(null, 90, 90);
@@ -20,7 +20,7 @@ describe('SheetArea#removeChildren', () => {
 
     checkGrid(area._grid, 0, 90, 95);
 
-    const removed = area.removeChildren(rect.bottomPosition + 1, 100);
+    const removed = area.removeChildren([rect.posX, rect.bottomPosition + 1], 100);
     expect(removed).toHaveLength(1);
     expect(removed[0].id).toBe(rect.id);
 
@@ -37,7 +37,7 @@ describe('SheetArea#removeChildren', () => {
     checkGrid(area._grid, 0, 55, 95);
     checkGrid(area._grid, 55, 90, 0);
 
-    const removed = area.removeChildren(nestedArea.bottomPosition + 1, 100);
+    const removed = area.removeChildren([nestedArea.posX, nestedArea.bottomPosition + 1], 100);
     expect(removed).toHaveLength(1);
     expect(removed[0].id).toBe(rect.id);
 
@@ -54,7 +54,7 @@ describe('SheetArea#removeChildren', () => {
     checkGrid(area._grid, 0, 45, 95);
     checkGrid(area._grid, 45, 90, 100);
 
-    const removed = area.removeChildren(rect2.posY, 100);
+    const removed = area.removeChildren([rect2.posX, rect2.posY], 100);
     expect(removed).toHaveLength(1);
     expect(removed[0].id).toBe(rect1.id);
 
@@ -80,7 +80,7 @@ describe('SheetArea#removeChildren', () => {
     expect(area.rects[2].posX).toBe(0);
     expect(area.rects[2].posY).toBe(45);
 
-    const removed = area.removeChildren(rect3.posY, 100);
+    const removed = area.removeChildren([rect3.posX, rect3.posY], 100);
     expect(removed).toHaveLength(2);
     expect(removed[0].id).toBe(rect1.id);
     expect(removed[1].id).toBe(rect2.id);
@@ -100,7 +100,7 @@ describe('SheetArea#removeChildren', () => {
 
     checkGrid(area._grid, 0, 90, 95);
 
-    const removed = area.removeChildren(rect2.bottomPosition + 1, 100);
+    const removed = area.removeChildren([rect2.posX, rect2.bottomPosition + 1], 100);
     expect(removed).toHaveLength(2);
     expect(removed[0].id).toBe(rect1.id);
     expect(removed[1].id).toBe(rect2.id);
@@ -118,7 +118,7 @@ describe('SheetArea#removeChildren', () => {
     checkGrid(area._grid, 0, 45, 100);
     checkGrid(area._grid, 45, 90, 95);
 
-    const removed = area.removeChildren(rect2.bottomPosition, 99);
+    const removed = area.removeChildren([rect2.posX, rect2.bottomPosition], 99);
     expect(removed).toHaveLength(1);
     expect(removed[0].id).toBe(rect2.id);
 

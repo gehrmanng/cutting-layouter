@@ -8,6 +8,17 @@ import Rect from './Rect';
  * An area within a layout sheet.
  */
 export default class SheetArea {
+  static getRects(area) {
+    const rects = [...area.rects];
+    if (area.nestedAreas.length) {
+      area.nestedAreas.forEach(a => {
+        rects.push(...SheetArea.getRects(a));
+      });
+    }
+
+    return rects;
+  }
+
   /**
    * Constructor.
    *
@@ -16,6 +27,7 @@ export default class SheetArea {
    * @param {number} maxHeight The maximum height if this area needs to be extended
    * @param {number} bladeWidth The blade width
    * @param {SheetArea} [parent] The parent of this sheet area
+   * @param {number} [sheet] The number of the sheet that contains this area
    */
   constructor(width, height, maxHeight, bladeWidth, parent, sheet) {
     this._id = uuid();
@@ -44,7 +56,12 @@ export default class SheetArea {
    * @param {SheetArea} newNestedArea The new nested sheet area
    */
   addNestedArea(newNestedArea) {
-    const [posX, posY] = this._getGridPosition(newNestedArea.fullWidth, newNestedArea.fullHeight);
+    const [posX, posY] = this._getGridPosition(
+      newNestedArea.fullWidth,
+      newNestedArea.fullHeight,
+      false,
+      true,
+    );
     newNestedArea.posX = posX;
     newNestedArea.posY = posY;
     newNestedArea.sheet = this._sheet;
@@ -65,6 +82,7 @@ export default class SheetArea {
     newRect.posX = posX;
     newRect.posY = posY;
     newRect.sheet = this._sheet;
+    newRect.parent = this;
     this._setCuttings(newRect);
     this._rects.push(newRect);
     this.updateGrid(posY, newRect.posX + newRect.fullWidth, newRect.fullHeight);
@@ -76,11 +94,19 @@ export default class SheetArea {
    * @param {number} width The required width
    * @param {number} height The required height
    * @param {boolean} fillRemaining Flag indicating if the given width should fill all remaining width
+   * @param {boolean} useCurrentHeight If true only the current height will be used instead of the
+   *                                   maximum height
+   * @param {boolean} useLeftMostPosition If true the left most possible position will be returned
    * @return {boolean|Array.<number>} The x and y coordinates if the required space is available,
    *                                  false otherwise
    */
-  canAdd(width, height, fillRemaining, useCurrentHeight) {
-    const [posX, posY] = this._getGridPosition(width, height, useCurrentHeight);
+  canAdd(width, height, fillRemaining, useCurrentHeight, useLeftMostPosition) {
+    const [posX, posY] = this._getGridPosition(
+      width,
+      height,
+      useCurrentHeight,
+      useLeftMostPosition,
+    );
 
     const canAdd =
       posX >= 0 &&
@@ -91,6 +117,14 @@ export default class SheetArea {
     return canAdd ? [posX, posY] : false;
   }
 
+  /**
+   * Extend this area either by the given height or by the required height to fit the given rect or
+   * area.
+   *
+   * @param {number} [byHeight] The height to extend the area height by
+   * @param {Rect|SheetArea} [rectOrArea] A rect or sheet area that should fit after height extension
+   * @return {boolean} True if the height could be extended, false otherwise
+   */
   extendHeight(byHeight, rectOrArea) {
     if (!rectOrArea && !byHeight) {
       return false;
@@ -158,6 +192,13 @@ export default class SheetArea {
     return true;
   }
 
+  /**
+   * Extend the height of this area and its parents to the given new height to fit the given child.
+   *
+   * @param {number} newHeight The new area height
+   * @param {SheetArea|Rect} child The child to fit after height extension
+   * @return {boolean} True if the height could be extended, false otherwise.
+   */
   extendHeightForChild(newHeight, child) {
     let newChildBottom = child.posY + newHeight;
     if (
@@ -207,73 +248,11 @@ export default class SheetArea {
   }
 
   /**
-   * Extend the height of this sheet area by the given value.
+   * Checks if the width of this area could be extended by the given width.
    *
-   * @param {number} height The extension height
-   * @return {boolean} True if the height could be extended, false otherwise
+   * @param {number} width The width to be checked
+   * @return {boolean} True if the area width can be extended, false otherwise
    */
-  extendHeightOld(height, usedWidth = 0) {
-    if (height === 0) {
-      return true;
-    }
-
-    if (this._height + height > this._maxHeight) {
-      return false;
-    }
-
-    if (this._parent) {
-      let extendedHeight = this._height + height;
-      if (extendedHeight < this._maxHeight) {
-        extendedHeight += Math.min(this._bladeWidth, this._maxHeight - extendedHeight);
-      }
-
-      if (this._posY + extendedHeight > this._parent.height) {
-        const parentExtended = this._parent.extendHeight(
-          this._posY + extendedHeight - this._parent.height,
-          this.fullWidth,
-        );
-        if (!parentExtended) {
-          return false;
-        }
-      }
-    }
-    const previousFullHeight = this.fullHeight;
-
-    if (this._nestedAreas && this._nestedAreas.length) {
-      const na = this._nestedAreas[this._nestedAreas.length - 1];
-      if (na.cuttingWidth.bottom === 0) {
-        this.updateGrid(na.posY + na.height, na.rightPosition, this._bladeWidth);
-        this._height += this._bladeWidth;
-        na.cuttingWidth = { bottom: this._bladeWidth };
-      }
-    } else if (this._rects && this._rects.length) {
-      const maxPosY = Math.max(...this._rects.map(r => r.posY));
-      const lastRects = this._rects.filter(r => r.posY === maxPosY);
-
-      lastRects.forEach(r => {
-        r.cuttingWidth = { bottom: this._bladeWidth };
-        this.updateGrid(this._height, r.rightPosition, this._bladeWidth);
-      });
-      this._height += this._bladeWidth;
-    }
-
-    this.updateGrid(this._height, usedWidth, height);
-    this._height += height;
-    if (this._height === this._maxHeight) {
-      this.cuttingWidth.bottom = 0;
-    }
-
-    if (this._parent) {
-      this._parent.updateGrid(
-        this._posY + previousFullHeight,
-        this._posX + this.fullWidth,
-        this.fullHeight - previousFullHeight,
-      );
-    }
-
-    return true;
-  }
-
   canExtendWidth(width) {
     const hasBeside =
       this._parent.children.filter(
@@ -350,8 +329,24 @@ export default class SheetArea {
     return remaining;
   }
 
-  removeChildren(position, width) {
-    const toBeRemoved = this.children.filter(c => c.posY < position && this._grid[c.posY] <= width);
+  /**
+   * Remove all children of this area that are above the given coords and smaller than the given
+   * width.
+   *
+   * @param {Array.<number>} coords The X and Y position to retrieve all removable children
+   * @param {number} width The maximum child width
+   * @return {Array.<Rect>} All removed rects including rects of nested areas
+   */
+  removeChildren(coords, width) {
+    const [posX, posY] = coords;
+    const relevantChildren = this.children.filter(c => c.posX >= posX && c.posX <= posX + width);
+    const toBeRemoved = relevantChildren.filter(c => {
+      const sameRowChildren = relevantChildren.filter(c2 => c2.posY === c.posY);
+      const rightChild = sameRowChildren
+        .filter(c3 => c3.posX === _.max(sameRowChildren.map(src => src.posX)))
+        .pop();
+      return c.posY < posY && this._grid[c.posY] - posX - rightChild.cuttingWidth.right < width;
+    });
 
     if (!toBeRemoved.length) {
       return [];
@@ -363,25 +358,35 @@ export default class SheetArea {
         rects.push(tbr);
         this._rects = this._rects.filter(r => r.id !== tbr.id);
       } else {
-        rects.push(...this._getRects(tbr));
+        rects.push(...SheetArea.getRects(tbr));
         this._nestedAreas = this._nestedAreas.filter(na => na.id !== tbr.id);
       }
       this.updateGrid(tbr.posY, -tbr.fullWidth, tbr.fullHeight);
     });
 
+    rects.forEach(r => {
+      r.sheet = undefined;
+    });
+
     return rects;
   }
 
-  _getRects = area => {
-    const rects = [...area.rects];
-    if (area.nestedAreas.length) {
-      area.nestedAreas.forEach(a => {
-        rects.push(...this._getRects(a));
-      });
+  /**
+   * Update the grid by the given width.
+   *
+   * @param {number} posY The top position that should be updated
+   * @param {number} width The new or additional width
+   * @param {number} height The height the grid should be updated to
+   */
+  updateGrid(posY, width, height) {
+    for (let i = posY; i < posY + height; i += 1) {
+      if (width < 0) {
+        this._grid[i] += width;
+      } else {
+        this._grid[i] = width;
+      }
     }
-
-    return rects;
-  };
+  }
 
   /**
    * ************************* *** Getters & Setters **** **************************
@@ -469,6 +474,10 @@ export default class SheetArea {
     return this._parent;
   }
 
+  set parent(parent) {
+    this._parent = parent;
+  }
+
   get posX() {
     return this._posX;
   }
@@ -527,32 +536,42 @@ export default class SheetArea {
     this._width = value;
   }
 
-  _getGridPosition(width, height, useCurrentHeight) {
+  /**
+   * Get a position that can hold a child of the given width and height.
+   *
+   * @param {number} width The required width
+   * @param {number} height The required height
+   * @param {boolean} useCurrentHeight If true only the current height will be used, if false the max
+   *                                   height will be used
+   */
+  _getGridPosition(width, height, useCurrentHeight, leftMostPosition) {
     let posX;
     let posY;
     const usedHeight = useCurrentHeight ? this._height : this._maxHeight;
 
     for (let i = 0; i < usedHeight; i += 1) {
-      if (i + height <= usedHeight && (!this._grid[i] || this._grid[i] + width <= this._width)) {
+      if (
+        i + height <= usedHeight &&
+        (!this._grid[i] || this._grid[i] + width <= this._width) &&
+        (!posX || this._grid[i] < posX)
+      ) {
         posX = this._grid[i] || 0;
         posY = i;
-        break;
+
+        if (!leftMostPosition || posX === 0) {
+          break;
+        }
       }
     }
 
     return [posX, posY];
   }
 
-  updateGrid(posY, width, height) {
-    for (let i = posY; i < posY + height; i += 1) {
-      if (width < 0) {
-        this._grid[i] += width;
-      } else {
-        this._grid[i] = width;
-      }
-    }
-  }
-
+  /**
+   * The the right and bottom cuttings of the given rect or area.
+   *
+   * @param {Rect|SheetArea} rectOrArea The rect or area to set the cuttings of
+   */
   _setCuttings(rectOrArea) {
     const { posX, posY, width, height } = rectOrArea;
     rectOrArea.cuttingWidth = {

@@ -18,7 +18,7 @@ export default class Sheet {
    * @param {number} sheetNumber The sheet counting number
    * @param {number} width The sheet width
    * @param {number} height The sheet height
-   * @param {Item[]} items All items that should be added to this sheet
+   * @param {Array.<Item>} items All items that should be added to this sheet
    * @param {number} bladeWidth The blade width
    * @param {Material} material The sheet material
    */
@@ -44,7 +44,7 @@ export default class Sheet {
   /**
    * Pack as many layout items as possible into this sheet.
    *
-   * @returns {Item[]} All remaining items
+   * @return {Array.<Item>} All remaining items
    */
   pack() {
     const allRects = [];
@@ -80,9 +80,15 @@ export default class Sheet {
     return notAddedItems;
   }
 
-  /** *************************** */
-  /** **** Getters & Setters **** */
-  /** *************************** */
+  /**
+   * **************************
+   */
+  /**
+   * *** Getters & Setters ****
+   */
+  /**
+   * **************************
+   */
 
   get height() {
     return this._height;

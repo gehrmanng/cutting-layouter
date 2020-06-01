@@ -1,4 +1,7 @@
-import { Item, Material } from '../bin-packing';
+/* eslint-disable no-restricted-syntax */
+import { Item, Material, Rect, SheetArea } from '../bin-packing';
+
+export const bladeWidth = 5;
 
 export const testItems = {
   gt1: [
@@ -102,6 +105,14 @@ export const testItems = {
     new Item('B', 700, 60, 2, 9010),
     new Item('C', 367, 30, 2, 9010),
   ],
+  gt21: [
+    new Item('A', 900, 600, 1, 9005),
+    new Item('B', 440, 390, 2, 9005),
+    new Item('D', 740, 30, 1, 9005),
+    new Item('C', 700, 60, 2, 9005),
+    new Item('E', 367, 30, 2, 9005),
+  ],
+  sar13: [new Item('A', 100, 50, 1, 9100), new Item('B', 100, 45, 1, 9100)],
 };
 
 export const materials = [
@@ -115,4 +126,20 @@ export const materials = [
   new Material(9008, 'TM8', 1000, 600, 12),
   new Material(9009, 'TM9', 2500, 1250, 12),
   new Material(9010, 'TM10', 740, 205, 12),
+  new Material(9100, 'TM100', 100, 100, 12),
 ];
+
+export const getRects = items => {
+  const rects = [];
+  for (const item of items) {
+    for (let i = 0; i < item.quantity; i += 1) {
+      rects.push(new Rect(item.id, item.width, item.height, 0, 0, item.name, i));
+    }
+  }
+  return rects;
+};
+
+export const getSheetArea = itemData => {
+  const material = materials.filter(m => m.id === itemData[0].material).pop();
+  return new SheetArea(material.width, material.height, material.height, bladeWidth, undefined, 0);
+};

@@ -1,4 +1,5 @@
 /* eslint-disable class-methods-use-this */
+/* eslint-disable no-restricted-syntax */
 // Library imports
 import _ from 'underscore';
 
@@ -10,6 +11,16 @@ import Sorter from './Sorter';
  * A grouper for layout rects.
  */
 export default class Grouper {
+  /**
+   * Get a flattened array of all nested areas.
+   *
+   * @param {SheetArea} area The parent area
+   */
+  _flatNestedAreaArrays = area => [
+    area,
+    ...(area.nestedAreas || []).flatMap(this._flatNestedAreaArrays),
+  ];
+
   /**
    * Constructor.
    *
@@ -28,6 +39,19 @@ export default class Grouper {
    */
   group(rects, sheetArea, canRotate = true) {
     const { width: fullWidth, height: fullHeight } = sheetArea;
+
+    if (!this._maxSingleWidth) {
+      const nonFullWidthRects = rects.filter(r => r.width < fullWidth);
+      if (nonFullWidthRects.length > 1) {
+        const allHeights = new Set(nonFullWidthRects.map(r => r.height));
+        if (allHeights.size === 1) {
+          this._maxSingleWidth = fullWidth;
+        } else {
+          this._maxSingleWidth = _.max(nonFullWidthRects.map(r => r.width));
+        }
+      }
+    }
+
     // Group all rects by height
     const byHeight = _.groupBy(rects, 'height');
 
@@ -168,7 +192,7 @@ export default class Grouper {
    */
   _addFullHeightRects(sheetArea, rects) {
     const notAdded = [];
-    rects.forEach(rect => {
+    Sorter.sort(rects).forEach(rect => {
       // Add the rect if there is enough remaining width at the very first row
       if (sheetArea.getRemainingWidth(0) >= rect.width) {
         sheetArea.addRect(rect);
@@ -212,7 +236,7 @@ export default class Grouper {
       notAdded.push(...remainingRects);
     }
 
-    fullWidthRects.forEach(rect => {
+    Sorter.sort(fullWidthRects).forEach(rect => {
       if (
         sheetArea.canAdd(rect.width, rect.height, true) &&
         sheetArea.extendHeight(undefined, rect)
@@ -224,35 +248,6 @@ export default class Grouper {
     });
 
     return notAdded;
-  }
-
-  /**
-   * Group all given rects bei their height to fit into the given maximum width.
-   *
-   * @param {Array.<Rect>} rects The rects to be grouped
-   * @param {number} width The maximum available width
-   */
-  _groupByMaxWidths(rects, width) {
-    const grouped = [];
-    // eslint-disable-next-line no-restricted-syntax
-    for (const rect of rects) {
-      let added = false;
-      // eslint-disable-next-line no-restricted-syntax
-      for (const group of grouped) {
-        if (!width || group.width + this._bladeWidth + rect.width <= width) {
-          group.rects.push(rect);
-          group.width += this._bladeWidth + rect.width;
-          added = true;
-          break;
-        }
-      }
-      if (!added) {
-        grouped.push({ width: rect.width, rects: [rect] });
-      }
-    }
-
-    grouped.sort((l, r) => r.width - l.width);
-    return grouped;
   }
 
   /**
@@ -274,38 +269,36 @@ export default class Grouper {
         return;
       }
 
-      // Get all remaining rects that have the same height
-      const remaining = sorted.slice(index + 1);
-      const sameHeight = [rect, ...remaining.filter(r => r.height === height)];
-
-      if (sameHeight.length > 1) {
-        // Try to add to an existing area first
-        const addedCurrentRect = this._addSameHeightRectsToNestedArea(
-          rect.id,
-          sameHeight,
-          height,
-          sheetArea.nestedAreas,
-        );
-        if (addedCurrentRect) {
-          return;
-        }
-
-        // Group all rects with the same height and get the group that contains the current rect
-        const sameHeightAsRect = this._groupByMaxWidths(sameHeight, sheetArea.width)
-          .filter(g => g.rects.map(r => r.id).includes(rect.id) && g.rects.length > 1)
-          .pop();
-
-        if (sameHeightAsRect) {
-          // Add all grouped rects directly if the group fills the full sheet area width
-          if (sheetArea.canAdd(sameHeightAsRect.width, height, true)) {
-            sameHeightAsRect.rects.forEach(r => sheetArea.addRect(r));
-            return;
+      if (width < this._maxSingleWidth) {
+        const sameHeight = sorted.slice(index + 1).filter(r => r.height === height);
+        if (sameHeight.length) {
+          let combinedWidth = width;
+          const combined = [rect];
+          const maxAllowedWidth = Math.min(sheetArea.width, this._maxSingleWidth * 1.2);
+          for (const shr of sameHeight) {
+            if (combinedWidth + this._bladeWidth + shr.width <= maxAllowedWidth) {
+              combinedWidth = combinedWidth + this._bladeWidth + shr.width;
+              combined.push(shr);
+            }
           }
 
-          // Otherwise try to add the group to a new sheet area
-          this._addToArea(sameHeightAsRect.width, height, sameHeightAsRect.rects, sheetArea);
+          if (combined.length > 1) {
+            const existingNestedArea = this._findNestedArea(
+              combinedWidth,
+              height,
+              sheetArea.nestedAreas,
+            );
+            const notAddedSingleRect = this._addToArea(
+              combinedWidth,
+              height,
+              combined,
+              sheetArea,
+              existingNestedArea,
+            );
+            if (notAddedSingleRect.length) {
+              notAddedRects.push(...notAddedSingleRect);
+            }
 
-          if (typeof rect.sheet !== 'undefined') {
             return;
           }
         }
@@ -337,21 +330,22 @@ export default class Grouper {
    * @param {SheetArea} [parent] The parent sheet area
    * @param {SheetArea} [existingNestedArea] The sheet area that the given rects should be added to
    */
+  // eslint-disable-next-line complexity
   _addToArea(width, height, rects, parent, existingNestedArea) {
     const notAddedRects = [];
 
     if (
       existingNestedArea &&
-      existingNestedArea.height === height &&
-      existingNestedArea.canExtendWidth(width)
+      existingNestedArea.width >= width &&
+      existingNestedArea.canAdd(width, height, true) &&
+      existingNestedArea.extendHeight(undefined, { width, height })
     ) {
-      // Add rects to an existing area if the area has the same height and
-      // can be extended in its width
-      existingNestedArea.extendWidth(width + this._bladeWidth);
-      const notGroupedRects = this.group(rects, existingNestedArea);
-      if (notGroupedRects.length) {
-        notAddedRects.push(...notGroupedRects);
-      }
+      const coords = existingNestedArea.canAdd(width, height, true);
+      const removedRects = existingNestedArea.removeChildren(coords, width);
+      rects.forEach(r => {
+        existingNestedArea.addRect(r);
+      });
+      this._addRemovedRects(removedRects, existingNestedArea);
     } else if (
       existingNestedArea &&
       existingNestedArea.width >= width &&
@@ -367,10 +361,20 @@ export default class Grouper {
         notAddedRects.push(...notGroupedRects);
       }
     } else if (parent) {
-      // Add rects to a new area if a parent area is available
-      const notAddedToNestedArea = this._addToNewNestedArea(width, height, parent, rects);
-      if (notAddedToNestedArea.length) {
-        notAddedRects.push(...notAddedToNestedArea);
+      if (parent.canAdd(width, height, true)) {
+        const coords = parent.canAdd(width, height, true);
+        parent.extendHeight(undefined, rects[0]);
+        const removedRects = parent.removeChildren(coords, width);
+        rects.forEach(r => {
+          parent.addRect(r);
+        });
+        this._addRemovedRects(removedRects, parent);
+      } else {
+        // Add rects to a new area if a parent area is available
+        const notAddedToNestedArea = this._addToNewNestedArea(width, height, parent, rects);
+        if (notAddedToNestedArea.length) {
+          notAddedRects.push(...notAddedToNestedArea);
+        }
       }
     }
 
@@ -401,13 +405,20 @@ export default class Grouper {
         parent,
         parent.sheet,
       );
+
       const notGroupedRects = this.group(rects, newNestedArea);
       if (notGroupedRects.length) {
         notAddedRects.push(...notGroupedRects);
       }
 
       // Check if the new area really can be added to the parent (should always return true).
-      const coords = parent.canAdd(newNestedArea.fullWidth, newNestedArea.fullHeight);
+      const coords = parent.canAdd(
+        newNestedArea.fullWidth,
+        newNestedArea.fullHeight,
+        false,
+        false,
+        true,
+      );
 
       if (!coords) {
         throw new Error('Something went wrong');
@@ -415,21 +426,11 @@ export default class Grouper {
 
       // Extend the parent height and add the new area
       parent.extendHeight(undefined, newNestedArea);
-
       if (coords[1] > 0) {
-        const removedRects = parent.removeChildren(coords[1], newNestedArea.width);
-        if (removedRects.length) {
-          newNestedArea = parent.addNestedArea(newNestedArea);
-
-          newNestedArea.maxHeight = parent.maxHeight - newNestedArea.posY;
-
-          removedRects.forEach(r => {
-            r.sheet = undefined;
-          });
-          this._addNonFullSizeRects(newNestedArea, removedRects);
-        } else {
-          parent.addNestedArea(newNestedArea);
-        }
+        const removedRects = parent.removeChildren(coords, newNestedArea.width);
+        newNestedArea = parent.addNestedArea(newNestedArea);
+        newNestedArea.maxHeight = parent.maxHeight - newNestedArea.posY;
+        this._addRemovedRects(removedRects, newNestedArea);
       } else {
         parent.addNestedArea(newNestedArea);
       }
@@ -440,6 +441,23 @@ export default class Grouper {
     }
 
     return notAddedRects;
+  }
+
+  /**
+   * Add previously removed rects to the given parent area.
+   *
+   * @param {Array.<Rect>} removedRects Previously removed rects
+   * @param {SheetArea} parent The new parent
+   */
+  _addRemovedRects(removedRects, parent) {
+    if (!removedRects.length) {
+      return;
+    }
+
+    removedRects.forEach(r => {
+      r.sheet = undefined;
+    });
+    this._addNonFullSizeRects(parent, removedRects);
   }
 
   /**
@@ -479,7 +497,6 @@ export default class Grouper {
     );
 
     // Find deeper level nested areas with the same width and enough remaining height
-    // eslint-disable-next-line no-restricted-syntax
     for (const na of hasNestedAreas) {
       matchingNestedArea = this._findNestedArea(width, height, na.nestedAreas, true);
       if (matchingNestedArea) {
@@ -501,7 +518,6 @@ export default class Grouper {
     }
 
     // Find bigger deeper level nested areas
-    // eslint-disable-next-line no-restricted-syntax
     for (const na of hasNestedAreas) {
       matchingNestedArea = this._findNestedArea(width, height, na.nestedAreas);
       if (matchingNestedArea) {
@@ -511,78 +527,4 @@ export default class Grouper {
 
     return matchingNestedArea;
   }
-
-  /**
-   * Try to add the currently processed rect together with same height rects to one of the given
-   * nested sheet areas.
-   *
-   * @param {string} currentId The id of the currently processed rect
-   * @param {Array.<Rect>} rects All remaining rects with the same height as the current rect
-   * @param {number} height The height of the current rect
-   * @param {Array.<SheetArea>} availableNestedAreas All available nested sheet areas
-   */
-  _addSameHeightRectsToNestedArea(currentId, rects, height, availableNestedAreas) {
-    // At least two rects are required
-    if (rects.length < 2 || !availableNestedAreas.length) {
-      return false;
-    }
-
-    // Check that all rects have the same height
-    const heights = new Set(rects.map(r => r.height));
-    if (heights.length > 1) {
-      throw new Error('Expected all rects to have the same height');
-    }
-
-    // Flat all nested areas, group them by their width and extract the maximum width
-    const areasByWidth = _.groupBy(
-      availableNestedAreas.flatMap(this._flatNestedAreaArrays),
-      'width',
-    );
-    const areaWidths = Object.keys(areasByWidth);
-    const maxAreaWidth = _.max(areaWidths.map(w => parseInt(w, 10)));
-
-    // Group all given rects to fit into the widest area and
-    // get the group that contains the currently processed rect
-    const group = this._groupByMaxWidths(rects, maxAreaWidth)
-      .filter(g => g.rects.map(r => r.id).includes(currentId) && g.rects.length > 1)
-      .pop();
-    if (!group) {
-      return false;
-    }
-
-    const groupWidth = group.width;
-    // Check if the grouped rects also fit into a smaller area
-    const otherMatchingWidths = areaWidths.filter(w => w !== maxAreaWidth && w > groupWidth);
-
-    let nestedArea;
-    // Get the matching nested area
-    if (otherMatchingWidths.length) {
-      [nestedArea] = areasByWidth[_.min(otherMatchingWidths)];
-    } else {
-      [nestedArea] = areasByWidth[maxAreaWidth];
-    }
-
-    let notAdded;
-    // Add the group of rects directly to the nested area if it has the same width as
-    // the area, otherwise use the area as the parent
-    if (nestedArea.width === groupWidth) {
-      notAdded = this._addToArea(groupWidth, height, group.rects, undefined, nestedArea);
-    } else {
-      notAdded = this._addToArea(groupWidth, height, group.rects, nestedArea);
-    }
-
-    // If the array of not added rects does not contain the id of the currently processed rect
-    // it could be added to an existing area
-    return !notAdded.map(r => r.id).includes(currentId);
-  }
-
-  /**
-   * Get a flattened array of all nested areas.
-   *
-   * @param {SheetArea} area The parent area
-   */
-  _flatNestedAreaArrays = area => [
-    area,
-    ...(area.nestedAreas || []).flatMap(this._flatNestedAreaArrays),
-  ];
 }

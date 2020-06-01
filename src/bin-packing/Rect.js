@@ -8,10 +8,10 @@ export default class Rect {
   /**
    * Create a new layout rectangle.
    *
-   * @param {string} name - The rectangle name
-   * @param {number} width - The rectangle width
-   * @param {number} height - The rectangle height
-   * @param {number} index - The index if the same rectangle exists multiple times
+   * @param {string} name The rectangle name
+   * @param {number} width The rectangle width
+   * @param {number} height The rectangle height
+   * @param {number} index The index if the same rectangle exists multiple times
    */
   static create(name, width, height, index) {
     return new Rect(undefined, width, height, 0, 0, name, index);
@@ -20,12 +20,12 @@ export default class Rect {
   /**
    * Constructor.
    *
-   * @param {string} itemId - The id of the rect containing item
-   * @param {number} width - The rectangle width
-   * @param {number} height - The rectangle height
-   * @param {number} [x=0] - The x position, defaults to 0
-   * @param {number} [y=0] - The y position, defaults to 0
-   * @param {string} [name=''] - The rectangle name
+   * @param {string} itemId The id of the rect containing item
+   * @param {number} width The rectangle width
+   * @param {number} height The rectangle height
+   * @param {number} [x=0] The x position, defaults to 0
+   * @param {number} [y=0] The y position, defaults to 0
+   * @param {string} [name=''] The rectangle name
    */
   constructor(itemId, width, height, x = 0, y = 0, name = '', index = 0) {
     this._id = uuid();
@@ -44,11 +44,18 @@ export default class Rect {
       left: 0,
     };
     this._sheet = undefined;
+    this._parent = undefined;
   }
 
-  /** *************************** */
-  /** **** Getters & Setters **** */
-  /** *************************** */
+  /**
+   * **************************
+   */
+  /**
+   * *** Getters & Setters ****
+   */
+  /**
+   * **************************
+   */
 
   get area() {
     return this._area;
@@ -100,6 +107,14 @@ export default class Rect {
 
   get numberOfCuts() {
     return Object.values(this._cuttingWidth).filter(cw => cw > 0).length;
+  }
+
+  get parent() {
+    return this._parent;
+  }
+
+  set parent(parent) {
+    this._parent = parent;
   }
 
   get posX() {

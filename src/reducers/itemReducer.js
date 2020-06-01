@@ -10,7 +10,7 @@ import { testItems } from '../data/testitemdata';
 // Initial state definition
 const initialState = {
   items: [
-    ...testItems.gt20,
+    ...testItems.gt18,
     // ...osbItems.s7,
 
     // Remove tests

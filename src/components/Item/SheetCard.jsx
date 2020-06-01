@@ -1,5 +1,5 @@
 // Library imports
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import {
@@ -43,8 +43,8 @@ const useStyles = makeStyles(theme => ({
 /**
  * A functional component that renders a card containing all sheet layouts.
  *
- * @param {Item[]} items - All available layout items
- * @returns {JSX} The component markup
+ * @param {Array.<Item>} items All available layout items
+ * @return {JSX} The component markup
  */
 const SheetCard = ({ items, materials, dispatch }) => {
   const classes = useStyles();
@@ -117,7 +117,7 @@ SheetCard.defaultProps = {
 /**
  * Mapping function to extract the required properties from the Redux store.
  *
- * @param {object} state - The Redux state
+ * @param {object} state The Redux state
  */
 const mapStateToProps = state => ({
   items: state.itemReducer.items,
