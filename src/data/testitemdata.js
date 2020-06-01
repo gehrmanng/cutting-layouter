@@ -116,6 +116,18 @@ export const testItems = {
 };
 
 export const materials = [
+  new Material(1, 'OSB', 2500, 1250, 12),
+  new Material(2, 'OSB', 2500, 1250, 15),
+  new Material(3, 'Sperrholz Birke', 2500, 1250, 12, true),
+  new Material(4, 'Sperrholz Birke', 2500, 1250, 15, true),
+  new Material(5, 'MDF', 800, 600, 9),
+  new Material(6, 'MDF', 1200, 600, 12),
+  new Material(7, 'MDF', 2500, 1250, 15),
+  new Material(8, 'Leimholz Eiche', 2000, 600, 20, true),
+  new Material(9, 'TestMaterial', 885, 600, 10),
+  new Material(10, 'Remove Test Material', 600, 200, 10),
+  new Material(11, 'OSB Verlegeplatte', 2040, 665, 12, true),
+  new Material(12, 'OSB Verlegeplatte', 2040, 665, 15, true),
   new Material(9001, 'TM1', 610, 100, 12),
   new Material(9002, 'TM2', 700, 100, 12),
   new Material(9003, 'TM3', 613, 100, 12),
@@ -129,7 +141,7 @@ export const materials = [
   new Material(9100, 'TM100', 100, 100, 12),
 ];
 
-export const getRects = items => {
+export const getRects = (items) => {
   const rects = [];
   for (const item of items) {
     for (let i = 0; i < item.quantity; i += 1) {
@@ -139,7 +151,7 @@ export const getRects = items => {
   return rects;
 };
 
-export const getSheetArea = itemData => {
-  const material = materials.filter(m => m.id === itemData[0].material).pop();
+export const getSheetArea = (itemData) => {
+  const material = materials.filter((m) => m.id === itemData[0].material).pop();
   return new SheetArea(material.width, material.height, material.height, bladeWidth, undefined, 0);
 };

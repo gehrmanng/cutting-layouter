@@ -10,8 +10,8 @@ import { testItems } from '../data/testitemdata';
 // Initial state definition
 const initialState = {
   items: [
-    ...testItems.gt18,
-    // ...osbItems.s7,
+    // ...testItems.gt18,
+    ...osbItems.s11,
 
     // Remove tests
     // new Item('X_A', 400, 100, 1, 10),
@@ -33,11 +33,11 @@ const reducer = (state = initialState, action) => {
       };
     case REMOVE_ITEM:
       return {
-        items: state.items.filter(i => i.id !== action.payload),
+        items: state.items.filter((i) => i.id !== action.payload),
       };
     case UPDATE_ITEM:
       return {
-        items: state.items.map(item => {
+        items: state.items.map((item) => {
           if (item.id === action.payload.id) {
             return action.payload;
           }

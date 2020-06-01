@@ -25,7 +25,6 @@ export default {
   ],
   s5: [new Item('A', 845, 620, 2, 11), new Item('B', 100, 620, 3, 11)],
   s6: [
-    // fail
     new Item('A', 845, 620, 1, 11),
     new Item('B', 870, 50, 2, 11),
     new Item('C', 866, 144, 3, 11),
@@ -33,7 +32,6 @@ export default {
     new Item('E', 821, 60, 1, 11),
   ],
   s7: [
-    // fail
     new Item('A', 60, 620, 1, 11),
     new Item('B', 821, 100, 2, 11),
     new Item('C', 821, 200, 2, 11),
