@@ -1,6 +1,6 @@
 /* eslint-disable no-restricted-syntax */
 // Library imports
-import uuid from 'uuid';
+import { v4 as uuid } from 'uuid';
 import _ from 'underscore';
 
 // Local data object imports

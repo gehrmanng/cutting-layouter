@@ -7,7 +7,7 @@ import { Item, Material } from './bin-packing';
 // Reducer imports
 import rootReducer from './reducers';
 
-const useLocalStorage = true;
+const useLocalStorage = false;
 
 const loadState = () => {
   if (!useLocalStorage) {

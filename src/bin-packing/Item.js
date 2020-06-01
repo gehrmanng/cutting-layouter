@@ -1,5 +1,5 @@
 // Library imports
-import uuid from 'uuid';
+import { v4 as uuid } from 'uuid';
 
 // Local data object imports
 import Rect from './Rect';
@@ -24,12 +24,12 @@ export default class Item {
   /**
    * Constructor.
    *
-   * @param {string} name - The item name
-   * @param {number} width - The item width
-   * @param {number} height - The item height
-   * @param {number} quantity - The quantity of rects
-   * @param {Material} material - The item material
-   * @param {string} id - An optional id
+   * @param {string} name The item name
+   * @param {number} width The item width
+   * @param {number} height The item height
+   * @param {number} quantity The quantity of rects
+   * @param {Material} material The item material
+   * @param {string} id An optional id
    */
   constructor(name, width, height, quantity, material, id) {
     this._id = id || uuid();
@@ -55,9 +55,15 @@ export default class Item {
     return new Item(obj.name, obj.width, obj.height, obj.quantity, obj.material, obj.id);
   }
 
-  /** *************************** */
-  /** **** Getters & Setters **** */
-  /** *************************** */
+  /**
+   * **************************
+   */
+  /**
+   * *** Getters & Setters ****
+   */
+  /**
+   * **************************
+   */
 
   get dimensions() {
     return this._dimensions;

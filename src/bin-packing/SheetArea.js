@@ -1,6 +1,6 @@
 // Library imports
 import _ from 'underscore';
-import uuid from 'uuid';
+import { v4 as uuid } from 'uuid';
 
 import Rect from './Rect';
 
