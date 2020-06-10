@@ -10,7 +10,7 @@ import ItemContainer from './ItemContainer';
 import { Sheet as PackedSheet } from '../../bin-packing';
 
 // Styling definitions
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     '&:not(:first-child)': {
       paddingTop: theme.spacing(3),

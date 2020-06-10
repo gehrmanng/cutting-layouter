@@ -10,7 +10,7 @@ import Item from './Item';
 import { SheetArea } from '../../bin-packing';
 
 // Styling definitions
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   nestedContainer: {
     position: 'absolute',
   },
@@ -43,6 +43,7 @@ const ItemContainer = ({ sheetArea, scale }) => {
 
   return (
     <div
+      id={sheetArea.id}
       className={classes.nestedContainer}
       style={style}
       data-width={sheetArea.width}
@@ -51,11 +52,12 @@ const ItemContainer = ({ sheetArea, scale }) => {
       data-maxheight={sheetArea.maxHeight}
       data-posx={sheetArea.posX}
       data-posy={sheetArea.posY}
-      data-cuts={sheetArea.numberOfCuts}>
+      data-cuts={sheetArea.numberOfCuts}
+    >
       {sheetArea.rects &&
-        sheetArea.rects.map(rect => <Item key={rect.id} rect={rect} scale={scale} />)}
+        sheetArea.rects.map((rect) => <Item key={rect.id} rect={rect} scale={scale} />)}
       {sheetArea.nestedAreas &&
-        sheetArea.nestedAreas.map(nestedArea => (
+        sheetArea.nestedAreas.map((nestedArea) => (
           <ItemContainer key={nestedArea.id} sheetArea={nestedArea} scale={scale} />
         ))}
     </div>

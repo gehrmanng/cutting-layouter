@@ -16,7 +16,7 @@ export default class Grouper {
    *
    * @param {SheetArea} area The parent area
    */
-  _flatNestedAreaArrays = area => [
+  _flatNestedAreaArrays = (area) => [
     area,
     ...(area.nestedAreas || []).flatMap(this._flatNestedAreaArrays),
   ];
@@ -41,13 +41,13 @@ export default class Grouper {
     const { width: fullWidth, height: fullHeight } = sheetArea;
 
     if (!this._maxSingleWidth) {
-      const nonFullWidthRects = rects.filter(r => r.width < fullWidth);
+      const nonFullWidthRects = rects.filter((r) => r.width < fullWidth);
       if (nonFullWidthRects.length > 1) {
-        const allHeights = new Set(nonFullWidthRects.map(r => r.height));
+        const allHeights = new Set(nonFullWidthRects.map((r) => r.height));
         if (allHeights.size === 1) {
           this._maxSingleWidth = fullWidth;
         } else {
-          this._maxSingleWidth = _.max(nonFullWidthRects.map(r => r.width));
+          this._maxSingleWidth = _.max(nonFullWidthRects.map((r) => r.width));
         }
       }
     }
@@ -61,7 +61,7 @@ export default class Grouper {
     let hasFullHeightFullWidth = false;
     if (byHeight[fullHeight.toString()]) {
       const fullHeightRects = byHeight[fullHeight.toString()];
-      const nonFullWidthRects = fullHeightRects.filter(r => r.width < fullWidth);
+      const nonFullWidthRects = fullHeightRects.filter((r) => r.width < fullWidth);
       hasFullHeightFullWidth = nonFullWidthRects.length !== fullHeightRects;
       const remaining = this._addFullHeightRects(
         sheetArea,
@@ -74,17 +74,17 @@ export default class Grouper {
 
     // Retrieve the remaining non full height heights
     const remainingHeights = Object.keys(byHeight)
-      .map(h => parseInt(h, 10))
-      .filter(h => h < fullHeight || (hasFullHeightFullWidth && h === fullHeight));
+      .map((h) => parseInt(h, 10))
+      .filter((h) => h < fullHeight || (hasFullHeightFullWidth && h === fullHeight));
 
     if (!remainingHeights.length) {
       return notAdded;
     }
 
     const nonFullHeightRectsByHeight = {};
-    remainingHeights.forEach(h => {
+    remainingHeights.forEach((h) => {
       if (h === fullHeight) {
-        nonFullHeightRectsByHeight[h] = byHeight[h].filter(r => r.width === fullWidth);
+        nonFullHeightRectsByHeight[h] = byHeight[h].filter((r) => r.width === fullWidth);
       } else {
         nonFullHeightRectsByHeight[h] = byHeight[h];
       }
@@ -135,36 +135,45 @@ export default class Grouper {
     }
 
     // eslint-disable-next-line complexity
-    nestedAreas.forEach(area => {
+    nestedAreas.forEach((area) => {
       const { posX, posY, rightPosition, bottomPosition, rects, width } = area;
 
       // Has a child below if any child starts at the same X position and has a higher Y position
-      const hasBelow = children.filter(c => c.posX === posX && c.posY > posY).length > 0;
+      const hasBelow =
+        children.filter((c) => c.posX < rightPosition && c.rightPosition > posX && c.posY > posY)
+          .length > 0;
       // Has a child beside if any child starts right to the end and has a Y position between top and bottom
       const hasBeside =
-        children.filter(c => c.posX >= rightPosition && c.posY >= posY && c.posY <= bottomPosition)
-          .length > 0;
+        children.filter(
+          (c) => c.posX >= rightPosition && c.posY >= posY && c.posY <= bottomPosition,
+        ).length > 0;
       const hasMaxWidthRects =
-        rects.length && rects.filter(r => r.rightPosition === width).length > 0;
+        rects.length && rects.filter((r) => r.rightPosition === width).length > 0;
       const canExtendWidth =
-        !hasBeside && (!hasMaxWidthRects || !area._grid.filter(w => w < width).length);
+        !hasBeside && (!hasMaxWidthRects || !area._grid.filter((w) => w < width).length);
+      const canExtendHeight =
+        !hasBelow &&
+        !(
+          area.rects.filter((r) => r.fullHeight === area.height).length &&
+          area.children.filter((c) => c.fullHeight < area.height).length
+        );
 
       const remainingWidth = parent.getRemainingWidth(posY);
       const remainingHeight = area.maxHeight - area.fullHeight;
 
       // Can only extend the width if something is below
-      if (hasBelow && canExtendWidth && remainingWidth > 0) {
+      if (!canExtendHeight && canExtendWidth && remainingWidth > 0) {
         area.extendWidth(remainingWidth + area.cuttingWidth.right);
         area.cuttingWidth.right = 0;
       }
 
       // Can only extend the hight if something is beside
-      if (!canExtendWidth && !hasBelow && remainingHeight > 0) {
+      if (!canExtendWidth && canExtendHeight && remainingHeight > 0) {
         area.extendHeight(remainingHeight);
         area.cuttingWidth.bottom = 0;
       }
 
-      if (!hasBelow && canExtendWidth) {
+      if (canExtendHeight && canExtendWidth) {
         // If remainingWidth is zero nothing needs to be extended
         if (remainingWidth > 0 && remainingWidth < remainingHeight) {
           // If remainingWidth is above zero but smaller than the remaining height the width should be extended
@@ -192,7 +201,7 @@ export default class Grouper {
    */
   _addFullHeightRects(sheetArea, rects) {
     const notAdded = [];
-    Sorter.sort(rects).forEach(rect => {
+    Sorter.sort(rects).forEach((rect) => {
       // Add the rect if there is enough remaining width at the very first row
       if (sheetArea.getRemainingWidth(0) >= rect.width) {
         sheetArea.addRect(rect);
@@ -226,17 +235,17 @@ export default class Grouper {
 
     const allRects = Object.values(rectsByHeight).flat();
     const fullWidthRects = allRects.filter(
-      r => r.width === remainingWidth || r.width + this._bladeWidth >= remainingWidth,
+      (r) => r.width === remainingWidth || r.width + this._bladeWidth >= remainingWidth,
     );
 
     const remainingRects = allRects.filter(
-      r => !fullWidthRects.length || !fullWidthRects.map(fr => fr.id).includes(r.id),
+      (r) => !fullWidthRects.length || !fullWidthRects.map((fr) => fr.id).includes(r.id),
     );
     if (remainingRects.length) {
       notAdded.push(...remainingRects);
     }
 
-    Sorter.sort(fullWidthRects).forEach(rect => {
+    Sorter.sort(fullWidthRects).forEach((rect) => {
       if (
         sheetArea.canAdd(rect.width, rect.height, true) &&
         sheetArea.extendHeight(undefined, rect)
@@ -270,15 +279,30 @@ export default class Grouper {
       }
 
       if (width < this._maxSingleWidth) {
-        const sameHeight = sorted.slice(index + 1).filter(r => r.height === height);
+        const sameHeight = sorted.slice(index + 1).filter((r) => r.height === height);
         if (sameHeight.length) {
           let combinedWidth = width;
           const combined = [rect];
-          const maxAllowedWidth = Math.min(sheetArea.width, this._maxSingleWidth * 1.2);
+          const maxAllowedWidth = Math.min(sheetArea.width, this._maxSingleWidth * 1.5);
           for (const shr of sameHeight) {
             if (combinedWidth + this._bladeWidth + shr.width <= maxAllowedWidth) {
               combinedWidth = combinedWidth + this._bladeWidth + shr.width;
-              combined.push(shr);
+
+              const existingNestedArea = this._findNestedArea(
+                combinedWidth,
+                height,
+                sheetArea.nestedAreas,
+              );
+
+              if (existingNestedArea || sheetArea.canAdd(combinedWidth, height)) {
+                combined.push(shr);
+                if (combinedWidth > this._maxSingleWidth) {
+                  this._maxSingleWidth = combinedWidth;
+                  break;
+                }
+              } else {
+                combinedWidth = combinedWidth - this._bladeWidth - shr.width;
+              }
             }
           }
 
@@ -340,12 +364,25 @@ export default class Grouper {
       existingNestedArea.canAdd(width, height, true) &&
       existingNestedArea.extendHeight(undefined, { width, height })
     ) {
-      const coords = existingNestedArea.canAdd(width, height, true);
-      const removedRects = existingNestedArea.removeChildren(coords, width);
-      rects.forEach(r => {
-        existingNestedArea.addRect(r);
-      });
-      this._addRemovedRects(removedRects, existingNestedArea);
+      const combined = this._combineAreas(
+        existingNestedArea.posX,
+        existingNestedArea.posY,
+        existingNestedArea.width,
+        existingNestedArea.height,
+        [...SheetArea.getRects(existingNestedArea), ...rects],
+        existingNestedArea.parent,
+      );
+
+      if (combined) {
+        existingNestedArea.parent.removeNestedArea(existingNestedArea);
+      } else {
+        const coords = existingNestedArea.canAdd(width, height, true);
+        const removedRects = existingNestedArea.removeChildren(coords, width);
+        rects.forEach((r) => {
+          existingNestedArea.addRect(r);
+        });
+        this._addRemovedRects(removedRects, existingNestedArea);
+      }
     } else if (
       existingNestedArea &&
       existingNestedArea.width >= width &&
@@ -354,18 +391,37 @@ export default class Grouper {
         rects.length === 1 ? rects[0] : undefined,
       )
     ) {
-      // Add rects to an existing area if the area has at least the same width and
-      // can be extended in its height
-      const notGroupedRects = this.group(rects, existingNestedArea);
-      if (notGroupedRects.length) {
-        notAddedRects.push(...notGroupedRects);
+      const combined = this._combineAreas(
+        existingNestedArea.posX,
+        existingNestedArea.posY,
+        existingNestedArea.width,
+        existingNestedArea.height,
+        [...SheetArea.getRects(existingNestedArea), ...rects],
+        existingNestedArea.parent,
+      );
+
+      if (combined) {
+        existingNestedArea.parent.removeNestedArea(existingNestedArea);
+      } else {
+        // Add rects to an existing area if the area has at least the same width and
+        // can be extended in its height
+        const notGroupedRects = this.group(rects, existingNestedArea);
+        if (notGroupedRects.length) {
+          notAddedRects.push(...notGroupedRects);
+        }
       }
     } else if (parent) {
       if (parent.canAdd(width, height, true)) {
         const coords = parent.canAdd(width, height, true);
+        if (coords[0] > 0) {
+          const combined = this._combineAreas(coords[0], coords[1], width, height, rects, parent);
+          if (combined) {
+            return notAddedRects;
+          }
+        }
         parent.extendHeight(undefined, rects[0]);
         const removedRects = parent.removeChildren(coords, width);
-        rects.forEach(r => {
+        rects.forEach((r) => {
           parent.addRect(r);
         });
         this._addRemovedRects(removedRects, parent);
@@ -424,9 +480,25 @@ export default class Grouper {
         throw new Error('Something went wrong');
       }
 
+      const [newPosX, newPosY] = coords;
+
+      if (newPosX > 0) {
+        const combined = this._combineAreas(
+          newPosX,
+          newPosY,
+          newNestedArea.width,
+          height,
+          rects,
+          parent,
+        );
+        if (combined) {
+          return notAddedRects;
+        }
+      }
+
       // Extend the parent height and add the new area
       parent.extendHeight(undefined, newNestedArea);
-      if (coords[1] > 0) {
+      if (newPosY > 0) {
         const removedRects = parent.removeChildren(coords, newNestedArea.width);
         newNestedArea = parent.addNestedArea(newNestedArea);
         newNestedArea.maxHeight = parent.maxHeight - newNestedArea.posY;
@@ -444,6 +516,43 @@ export default class Grouper {
   }
 
   /**
+   * Combine already positioned rects with a left sibling if available.
+   *
+   * @param {number} posX The previously calculated X position
+   * @param {number} posY The previously calculated Y position
+   * @param {number} width The full width of the given rects
+   * @param {number} height The height of the given rects
+   * @param {Array.<Rect>} rects The rects that should be combined with a sibling
+   * @param {SheetArea} parent The parent sheet area
+   * @return {boolean} True if the rects could be combined with a sibling, false otherwise
+   */
+  _combineAreas(posX, posY, width, height, rects, parent) {
+    const leftSiblings = parent.children.filter(
+      (c) =>
+        c.rightPosition === posX &&
+        c.posY === posY &&
+        c.height >= height &&
+        c.height <= height + this._bladeWidth,
+    );
+    if (leftSiblings.length === 1 && leftSiblings[0] instanceof SheetArea) {
+      const leftSibling = leftSiblings.pop();
+      const removedChildren = leftSibling.removeChildren();
+      const newChildren = [...removedChildren, ...rects];
+      leftSibling.extendWidth(this._bladeWidth + width);
+      newChildren.forEach((r) => {
+        r.sheet = undefined;
+      });
+      if (leftSibling.width > this._maxSingleWidth) {
+        this._maxSingleWidth = leftSibling.width;
+      }
+      this.group(newChildren, leftSibling);
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
    * Add previously removed rects to the given parent area.
    *
    * @param {Array.<Rect>} removedRects Previously removed rects
@@ -454,7 +563,7 @@ export default class Grouper {
       return;
     }
 
-    removedRects.forEach(r => {
+    removedRects.forEach((r) => {
       r.sheet = undefined;
     });
     this._addNonFullSizeRects(parent, removedRects);
@@ -476,7 +585,7 @@ export default class Grouper {
 
     // Find first level nested area of same height with enough remaining space next to it
     let matchingNestedArea = availableNestedAreas
-      .filter(na => na.height === height && na.parent.getRemainingWidth(na.posY) >= width)
+      .filter((na) => na.height === height && na.parent.getRemainingWidth(na.posY) >= width)
       .pop();
 
     if (matchingNestedArea) {
@@ -485,7 +594,7 @@ export default class Grouper {
 
     // Find first level nested areas with the same width and enough remaining height
     matchingNestedArea = availableNestedAreas
-      .filter(na => na.width === width && na.canAdd(width, height, true))
+      .filter((na) => na.width === width && na.canAdd(width, height, true))
       .pop();
 
     if (matchingNestedArea) {
@@ -493,7 +602,7 @@ export default class Grouper {
     }
 
     const hasNestedAreas = availableNestedAreas.filter(
-      na => na.nestedAreas && na.nestedAreas.length,
+      (na) => na.nestedAreas && na.nestedAreas.length,
     );
 
     // Find deeper level nested areas with the same width and enough remaining height
@@ -510,7 +619,7 @@ export default class Grouper {
 
     // Find bigger first level nested area
     matchingNestedArea = availableNestedAreas
-      .filter(na => na.width >= width && na.canAdd(width, height))
+      .filter((na) => na.width >= width && na.canAdd(width, height))
       .pop();
 
     if (matchingNestedArea) {

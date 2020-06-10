@@ -11,7 +11,7 @@ export default class SheetArea {
   static getRects(area) {
     const rects = [...area.rects];
     if (area.nestedAreas.length) {
-      area.nestedAreas.forEach(a => {
+      area.nestedAreas.forEach((a) => {
         rects.push(...SheetArea.getRects(a));
       });
     }
@@ -152,9 +152,9 @@ export default class SheetArea {
 
     let lowestChildren;
     if (this.children.length) {
-      const lowestChild = _.max(this.children, child => child.bottomPosition);
+      const lowestChild = _.max(this.children, (child) => child.bottomPosition);
 
-      lowestChildren = this.children.filter(c => c.bottomPosition === lowestChild.bottomPosition);
+      lowestChildren = this.children.filter((c) => c.bottomPosition === lowestChild.bottomPosition);
       if (
         lowestChild.bottomPosition === this._height &&
         lowestChild.cuttingWidth.bottom < this._bladeWidth
@@ -178,8 +178,12 @@ export default class SheetArea {
     this.updateGrid(this._height, 0, extendByHeight);
     this._height += extendByHeight;
 
+    if (this._height === this._maxHeight) {
+      this._cuttingWidth.bottom = 0;
+    }
+
     if (lowestChildren && lowestChildren.length) {
-      lowestChildren.forEach(child => {
+      lowestChildren.forEach((child) => {
         child.cuttingWidth.bottom = this._bladeWidth;
         this.updateGrid(
           child.bottomPosition - this._bladeWidth,
@@ -244,6 +248,10 @@ export default class SheetArea {
     );
     this._height = newChildBottom;
 
+    if (this._height === this._maxHeight) {
+      this._cuttingWidth.bottom = 0;
+    }
+
     return true;
   }
 
@@ -256,7 +264,8 @@ export default class SheetArea {
   canExtendWidth(width) {
     const hasBeside =
       this._parent.children.filter(
-        c => c.posX >= this.rightPosition && c.posY >= this._posY && c.posY <= this.bottomPosition,
+        (c) =>
+          c.posX >= this.rightPosition && c.posY >= this._posY && c.posY <= this.bottomPosition,
       ).length > 0;
 
     if (hasBeside) {
@@ -278,7 +287,7 @@ export default class SheetArea {
     if ((this._rects && this._rects.length) || (this._nestedAreas && this._nestedAreas.length)) {
       const byYPosition = _.groupBy([...this._rects, ...this._nestedAreas], 'posY');
 
-      Object.values(byYPosition).forEach(collection => {
+      Object.values(byYPosition).forEach((collection) => {
         collection.sort((l, r) => l.posX - r.posX);
         const last = _.last(collection);
         const rightCuttingWidth = Math.min(this._bladeWidth, width);
@@ -338,37 +347,48 @@ export default class SheetArea {
    * @return {Array.<Rect>} All removed rects including rects of nested areas
    */
   removeChildren(coords, width) {
-    const [posX, posY] = coords;
-    const relevantChildren = this.children.filter(c => c.posX >= posX && c.posX <= posX + width);
-    const toBeRemoved = relevantChildren.filter(c => {
-      const sameRowChildren = relevantChildren.filter(c2 => c2.posY === c.posY);
-      const rightChild = sameRowChildren
-        .filter(c3 => c3.posX === _.max(sameRowChildren.map(src => src.posX)))
-        .pop();
-      return c.posY < posY && this._grid[c.posY] - posX - rightChild.cuttingWidth.right < width;
-    });
+    let toBeRemoved;
+    if (!coords && !width) {
+      toBeRemoved = [...this.children];
+    } else {
+      const [posX, posY] = coords;
+      const relevantChildren = this.children.filter(
+        (c) => c.posX >= posX && c.posX <= posX + width,
+      );
+      toBeRemoved = relevantChildren.filter((c) => {
+        const sameRowChildren = relevantChildren.filter((c2) => c2.posY === c.posY);
+        const rightChild = sameRowChildren
+          .filter((c3) => c3.posX === _.max(sameRowChildren.map((src) => src.posX)))
+          .pop();
+        return c.posY < posY && this._grid[c.posY] - posX - rightChild.cuttingWidth.right < width;
+      });
+    }
 
     if (!toBeRemoved.length) {
       return [];
     }
 
     const rects = [];
-    toBeRemoved.forEach(tbr => {
+    toBeRemoved.forEach((tbr) => {
       if (tbr instanceof Rect) {
         rects.push(tbr);
-        this._rects = this._rects.filter(r => r.id !== tbr.id);
+        this._rects = this._rects.filter((r) => r.id !== tbr.id);
       } else {
         rects.push(...SheetArea.getRects(tbr));
-        this._nestedAreas = this._nestedAreas.filter(na => na.id !== tbr.id);
+        this._nestedAreas = this._nestedAreas.filter((na) => na.id !== tbr.id);
       }
       this.updateGrid(tbr.posY, -tbr.fullWidth, tbr.fullHeight);
     });
 
-    rects.forEach(r => {
+    rects.forEach((r) => {
       r.sheet = undefined;
     });
 
     return rects;
+  }
+
+  removeNestedArea(area) {
+    this._nestedAreas = this._nestedAreas.filter((na) => na.id !== area.id);
   }
 
   /**
@@ -441,12 +461,12 @@ export default class SheetArea {
   }
 
   get numberOfCuts() {
-    let result = Object.values(this._cuttingWidth).filter(cw => cw > 0).length;
+    let result = Object.values(this._cuttingWidth).filter((cw) => cw > 0).length;
 
     if (this._rects.length) {
-      const sameHeightRowRects = _.groupBy(this._rects, r => `${r.posY}#${r.height}`);
-      Object.values(sameHeightRowRects).forEach(rects => {
-        result += rects.filter(r => r.cuttingWidth.right > 0).length;
+      const sameHeightRowRects = _.groupBy(this._rects, (r) => `${r.posY}#${r.height}`);
+      Object.values(sameHeightRowRects).forEach((rects) => {
+        result += rects.filter((r) => r.cuttingWidth.right > 0).length;
         if (rects[0].cuttingWidth.bottom > 0) {
           result += 1;
         }
@@ -454,7 +474,7 @@ export default class SheetArea {
     }
 
     if (this._nestedAreas.length) {
-      result += this._nestedAreas.map(na => na.numberOfCuts).reduce((p, c) => p + c);
+      result += this._nestedAreas.map((na) => na.numberOfCuts).reduce((p, c) => p + c);
     }
 
     return result;
@@ -464,7 +484,7 @@ export default class SheetArea {
     let result = this._rects.length;
 
     if (this._nestedAreas.length) {
-      result += this._nestedAreas.map(na => na.numberOfRects).reduce((p, c) => p + c);
+      result += this._nestedAreas.map((na) => na.numberOfRects).reduce((p, c) => p + c);
     }
 
     return result;
@@ -518,11 +538,11 @@ export default class SheetArea {
     let result = 0;
 
     if (this._rects.length) {
-      result += this._rects.map(r => r.area).reduce((p, c) => p + c);
+      result += this._rects.map((r) => r.area).reduce((p, c) => p + c);
     }
 
     if (this._nestedAreas.length) {
-      result += this._nestedAreas.map(na => na.usedArea).reduce((p, c) => p + c);
+      result += this._nestedAreas.map((na) => na.usedArea).reduce((p, c) => p + c);
     }
 
     return result;

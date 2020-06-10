@@ -56,6 +56,23 @@
     },
     "title": "Sheet layout"
   },
+  "errors": {
+    "height": {
+      "minValue": "Height must be _min_ or above",
+      "required": "Height is required"
+    },
+    "material": {
+      "required": "Material is required"
+    },
+    "quantity": {
+      "minValue": "Quantity must be _min_ or above",
+      "required": "Quantity is required"
+    },
+    "width": {
+      "minValue": "Width must be _min_ or above",
+      "required": "Width is required"
+    }
+  },
   "global": {
     "unit": {
       "mm": " mm"

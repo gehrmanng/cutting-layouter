@@ -4,7 +4,7 @@ export default {
   s1: [
     new Item('A', 870, 650, 2, 11),
     new Item('B', 200, 620, 1, 11),
-    new Item('A', 60, 620, 1, 11),
+    new Item('C', 60, 620, 1, 11),
   ],
   s2: [
     new Item('A', 845, 620, 2, 11),

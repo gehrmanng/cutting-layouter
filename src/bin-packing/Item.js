@@ -8,7 +8,7 @@ import Rect from './Rect';
  * A layout item.
  */
 export default class Item {
-  static of = otherItem => {
+  static of = (otherItem) => {
     const newItem = new Item(
       otherItem.name,
       otherItem.width,
@@ -38,6 +38,7 @@ export default class Item {
     this._quantity = quantity;
     this._material = material;
     this._sheet = undefined;
+    this._color = `hsla(${Math.random() * 360}, 100%, 50%, 0.5)`;
   }
 
   serialize() {
@@ -64,6 +65,10 @@ export default class Item {
   /**
    * **************************
    */
+
+  get color() {
+    return this._color;
+  }
 
   get dimensions() {
     return this._dimensions;

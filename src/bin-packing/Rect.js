@@ -14,7 +14,7 @@ export default class Rect {
    * @param {number} index The index if the same rectangle exists multiple times
    */
   static create(name, width, height, index) {
-    return new Rect(undefined, width, height, 0, 0, name, index);
+    return new Rect(undefined, width, height, 0, 0, name, undefined, index);
   }
 
   /**
@@ -27,12 +27,13 @@ export default class Rect {
    * @param {number} [y=0] The y position, defaults to 0
    * @param {string} [name=''] The rectangle name
    */
-  constructor(itemId, width, height, x = 0, y = 0, name = '', index = 0) {
+  constructor(itemId, width, height, x = 0, y = 0, name = '', color, index = 0) {
     this._id = uuid();
     this._itemId = itemId;
     this._area = width * height;
     this._height = height;
     this._name = name;
+    this._color = color;
     this._posX = x;
     this._posY = y;
     this._width = width;
@@ -63,6 +64,10 @@ export default class Rect {
 
   get bottomPosition() {
     return this._posY + this.fullHeight;
+  }
+
+  get color() {
+    return this._color;
   }
 
   get cuttingWidth() {
@@ -106,7 +111,7 @@ export default class Rect {
   }
 
   get numberOfCuts() {
-    return Object.values(this._cuttingWidth).filter(cw => cw > 0).length;
+    return Object.values(this._cuttingWidth).filter((cw) => cw > 0).length;
   }
 
   get parent() {

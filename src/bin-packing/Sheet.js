@@ -48,12 +48,14 @@ export default class Sheet {
    */
   pack() {
     const allRects = [];
-    const notAddedItems = this._items.filter(i => i.height > this._height || i.width > this._width);
+    const notAddedItems = this._items.filter(
+      (i) => i.height > this._height || i.width > this._width,
+    );
     this._items
-      .filter(i => i.height <= this._height && i.width <= this._width)
-      .forEach(item => {
+      .filter((i) => i.height <= this._height && i.width <= this._width)
+      .forEach((item) => {
         for (let i = 0; i < item.quantity; i += 1) {
-          allRects.push(new Rect(item.id, item.width, item.height, 0, 0, item.name, i));
+          allRects.push(new Rect(item.id, item.width, item.height, 0, 0, item.name, item.color, i));
         }
       });
 
@@ -63,13 +65,13 @@ export default class Sheet {
     }
 
     const rectsByItem = _.groupBy(
-      allRects.filter(r => typeof r.sheet !== 'undefined'),
+      allRects.filter((r) => typeof r.sheet !== 'undefined'),
       'itemId',
     );
 
     Object.entries(rectsByItem).forEach(([itemId, rects]) => {
-      const item = this._items.filter(i => i.id === itemId).pop();
-      const sheetNumbers = new Set(rects.map(r => r.sheet));
+      const item = this._items.filter((i) => i.id === itemId).pop();
+      const sheetNumbers = new Set(rects.map((r) => r.sheet));
       if (sheetNumbers.length > 1) {
         item.sheet = -1;
       } else {

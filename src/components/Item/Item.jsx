@@ -7,7 +7,7 @@ import { makeStyles } from '@material-ui/core';
 import { Rect } from '../../bin-packing';
 
 // Styling definitions
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   item: {
     position: 'absolute',
     display: 'flex',
@@ -16,7 +16,7 @@ const useStyles = makeStyles(theme => ({
     fontSize: 18,
 
     '&:hover': {
-      backgroundColor: '#CCC',
+      backgroundColor: '#CCC !important',
     },
   },
 }));
@@ -24,9 +24,9 @@ const useStyles = makeStyles(theme => ({
 /**
  * A functional component that renders a rectangular representing a single layout item.
  *
- * @param {Rect} rect - The rectangular to be rendered
- * @param {number} scale - The zoom scale
- * @returns {JSX} The component markup
+ * @param {Rect} rect The rectangular to be rendered
+ * @param {number} scale The zoom scale
+ * @return {JSX} The component markup
  */
 const Item = ({ rect, scale }) => {
   const classes = useStyles();
@@ -44,6 +44,7 @@ const Item = ({ rect, scale }) => {
     borderRight: `${Math.round(rect.cuttingWidth.right * scale)}px solid black`,
     borderBottom: `${Math.round(rect.cuttingWidth.bottom * scale)}px solid black`,
     borderLeft: `${Math.round(rect.cuttingWidth.left * scale)}px solid black`,
+    backgroundColor: rect.color,
   };
 
   return (

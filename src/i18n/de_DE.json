@@ -44,6 +44,23 @@
   "SheetCard": {
     "title": "Zuschnitt Layout"
   },
+  "errors": {
+    "height": {
+      "minValue": "Breite muss mindestens _min_ betragen",
+      "required": "Breite ist ein Pflichtfeld"
+    },
+    "material": {
+      "required": "Material ist ein Pflichtfeld"
+    },
+    "quantity": {
+      "minValue": "Anzahl muss mindestens _min_ betragen",
+      "required": "Anzahl ist ein Pflichtfeld"
+    },
+    "width": {
+      "minValue": "Länge muss mindestens _min_ betragen",
+      "required": "Länge ist ein Pflichtfeld"
+    }
+  },
   "global": {
     "unit": {
       "mm": " mm"
