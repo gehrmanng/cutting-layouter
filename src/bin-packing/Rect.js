@@ -48,6 +48,19 @@ export default class Rect {
     this._parent = undefined;
   }
 
+  reset() {
+    this._posX = 0;
+    this._posY = 0;
+    this._sheet = undefined;
+    this._parent = undefined;
+    this._cuttingWidth = {
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+    };
+  }
+
   /**
    * **************************
    */

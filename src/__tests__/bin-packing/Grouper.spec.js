@@ -546,6 +546,340 @@ describe('Grouper', () => {
     const nestedArea = grouped.nestedAreas[0];
     checkArea(nestedArea, 705, 135, 0, 70, 0, bladeWidth, 0, 0, 2, 0);
   });
+
+  it('should group same height rects in one row of same width as a single rect (GT21)', () => {
+    const rects = getRects(testItems.gt21);
+    const grouped = getSheetArea(testItems.gt21);
+
+    new Grouper(bladeWidth).group(rects, grouped);
+
+    checkArea(grouped, 2000, 600, 0, 0, 0, 0, 0, 0, 1, 1);
+    checkRemainingWidth(grouped, [
+      [0, 205],
+      [558, 205],
+      [559, 205],
+      [560, 205],
+      [561, 205],
+      [562, 205],
+      [563, 205],
+      [564, 205],
+      [565, 205],
+      [566, 205],
+      [599, 205],
+      [600, NaN],
+    ]);
+
+    checkRect(grouped.rects[0], 'A', 0, 0, 0, bladeWidth, 0, 0);
+
+    const nestedArea = grouped.nestedAreas[0];
+    checkArea(nestedArea, 890, 600, 905, 0, 0, bladeWidth, 0, 0, 2, 1);
+    checkRemainingWidth(nestedArea, [
+      [0, 0],
+      [395, 140],
+    ]);
+
+    checkRect(nestedArea.rects[0], 'B', 0, 0, 0, bladeWidth, bladeWidth, 0);
+    checkRect(nestedArea.rects[1], 'B', 445, 0, 0, 0, bladeWidth, 0);
+
+    checkArea(nestedArea.nestedAreas[0], 745, 205, 0, 395, 0, bladeWidth, 0, 0, 3, 1);
+    checkRemainingWidth(nestedArea.nestedAreas[0], [
+      [0, 0],
+      [70, 35],
+    ]);
+
+    checkRect(nestedArea.nestedAreas[0].rects[0], 'D', 0, 0, 0, 0, bladeWidth, 0);
+    checkRect(nestedArea.nestedAreas[0].rects[1], 'E', 0, 35, 0, bladeWidth, bladeWidth, 0);
+    checkRect(nestedArea.nestedAreas[0].rects[2], 'E', 372, 35, 0, 1, bladeWidth, 0);
+
+    const nestedNestedArea = nestedArea.nestedAreas[0].nestedAreas[0];
+    checkArea(nestedNestedArea, 705, 135, 0, 70, 0, bladeWidth, 0, 0, 2, 0);
+    checkRemainingWidth(nestedNestedArea, [
+      [0, 0],
+      [74, 0],
+    ]);
+
+    checkRect(nestedNestedArea.rects[0], 'C', 0, 0, 0, 0, bladeWidth, 0);
+    checkRect(nestedNestedArea.rects[1], 'C', 0, 65, 0, 0, bladeWidth, 0);
+  });
+
+  it('should add 20 tiny rects in one block (GT22)', () => {
+    const rects = getRects(testItems.gt22);
+    const grouped = getSheetArea(testItems.gt22);
+
+    new Grouper(bladeWidth).group(rects, grouped);
+
+    checkArea(grouped, 2000, 600, 0, 0, 0, 0, 0, 0, 21, 1);
+    checkRemainingWidth(grouped, [
+      [0, 0],
+      [549, 0],
+      [550, 205],
+      [558, 205],
+      [559, 205],
+      [560, 205],
+      [561, 205],
+      [562, 205],
+      [563, 205],
+      [564, 205],
+      [565, 205],
+      [566, 205],
+      [599, 205],
+      [600, NaN],
+    ]);
+
+    checkRect(grouped.rects[0], 'A', 0, 0, 0, bladeWidth, 0, 0);
+    let posY = 0;
+    for (let r = 1; r < 21; r += 2) {
+      checkRect(grouped.rects[r], 'E', 1795, posY, 0, bladeWidth, bladeWidth, 0);
+      checkRect(grouped.rects[r + 1], 'E', 1900, posY, 0, 0, bladeWidth, 0);
+      posY += 55;
+    }
+
+    const nestedArea = grouped.nestedAreas[0];
+    checkArea(nestedArea, 890, 600, 905, 0, 0, bladeWidth, 0, 0, 2, 1);
+    checkRemainingWidth(nestedArea, [
+      [0, 0],
+      [395, 140],
+    ]);
+
+    checkRect(nestedArea.rects[0], 'B', 0, 0, 0, bladeWidth, bladeWidth, 0);
+    checkRect(nestedArea.rects[1], 'B', 445, 0, 0, 0, bladeWidth, 0);
+
+    checkArea(nestedArea.nestedAreas[0], 745, 205, 0, 395, 0, bladeWidth, 0, 0, 2, 1);
+    checkRemainingWidth(nestedArea.nestedAreas[0], [
+      [0, 0],
+      [70, 35],
+    ]);
+
+    checkRect(nestedArea.nestedAreas[0].rects[0], 'D', 0, 0, 0, 0, bladeWidth, 0);
+    checkRect(nestedArea.nestedAreas[0].rects[1], 'D', 0, 35, 0, 0, bladeWidth, 0);
+
+    const nestedNestedArea = nestedArea.nestedAreas[0].nestedAreas[0];
+    checkArea(nestedNestedArea, 705, 135, 0, 70, 0, bladeWidth, 0, 0, 2, 0);
+    checkRemainingWidth(nestedNestedArea, [
+      [0, 0],
+      [74, 0],
+    ]);
+
+    checkRect(nestedNestedArea.rects[0], 'C', 0, 0, 0, 0, bladeWidth, 0);
+    checkRect(nestedNestedArea.rects[1], 'C', 0, 65, 0, 0, bladeWidth, 0);
+  });
+
+  it('should add 25 tiny rects in one block (GT23)', () => {
+    const rects = getRects(testItems.gt23);
+    const grouped = getSheetArea(testItems.gt23);
+
+    new Grouper(bladeWidth).group(rects, grouped);
+
+    checkArea(grouped, 2000, 600, 0, 0, 0, 0, 0, 0, 23, 1);
+    checkRemainingWidth(grouped, [
+      [0, 0],
+      [549, 0],
+      [550, 0],
+      [558, 0],
+      [559, 0],
+      [560, 0],
+      [561, 0],
+      [562, 0],
+      [563, 0],
+      [564, 0],
+      [565, 0],
+      [566, 0],
+      [599, 205], // Should be 0
+      [600, NaN],
+    ]);
+
+    checkRect(grouped.rects[0], 'A', 0, 0, 0, bladeWidth, 0, 0);
+    let posY = 0;
+    for (let r = 1; r < 21; r += 2) {
+      checkRect(grouped.rects[r], 'E', 1795, posY, 0, bladeWidth, bladeWidth, 0);
+      checkRect(grouped.rects[r + 1], 'E', 1900, posY, 0, 0, bladeWidth, 0);
+      posY += 55;
+    }
+    checkRect(grouped.rects[21], 'E', 1795, 550, 0, bladeWidth, 0, 0);
+    checkRect(grouped.rects[22], 'E', 1900, 550, 0, 0, 0, 0);
+
+    const nestedArea = grouped.nestedAreas[0];
+    checkArea(nestedArea, 890, 600, 905, 0, 0, bladeWidth, 0, 0, 2, 2);
+    checkRemainingWidth(nestedArea, [
+      [0, 0],
+      [395, 0],
+      [559, 0],
+      [560, 140],
+    ]);
+
+    checkRect(nestedArea.rects[0], 'B', 0, 0, 0, bladeWidth, bladeWidth, 0);
+    checkRect(nestedArea.rects[1], 'B', 445, 0, 0, 0, bladeWidth, 0);
+
+    checkArea(nestedArea.nestedAreas[0], 745, 205, 0, 395, 0, bladeWidth, 0, 0, 2, 1);
+    checkRemainingWidth(nestedArea.nestedAreas[0], [
+      [0, 0],
+      [70, 35],
+    ]);
+
+    checkRect(nestedArea.nestedAreas[0].rects[0], 'D', 0, 0, 0, 0, bladeWidth, 0);
+    checkRect(nestedArea.nestedAreas[0].rects[1], 'D', 0, 35, 0, 0, bladeWidth, 0);
+
+    checkArea(nestedArea.nestedAreas[1], 140, 165, 745, 395, 0, 0, bladeWidth, 0, 3, 0);
+    checkRemainingWidth(nestedArea.nestedAreas[1], [
+      [0, 35],
+      [70, 35],
+      [139, 35],
+    ]);
+
+    checkRect(nestedArea.nestedAreas[1].rects[0], 'E', 0, 0, 0, bladeWidth, bladeWidth, 0);
+    checkRect(nestedArea.nestedAreas[1].rects[1], 'E', 0, 55, 0, bladeWidth, bladeWidth, 0);
+    checkRect(nestedArea.nestedAreas[1].rects[2], 'E', 0, 110, 0, bladeWidth, 0, 0);
+
+    const nestedNestedArea = nestedArea.nestedAreas[0].nestedAreas[0];
+    checkArea(nestedNestedArea, 705, 135, 0, 70, 0, bladeWidth, 0, 0, 2, 0);
+    checkRemainingWidth(nestedNestedArea, [
+      [0, 0],
+      [74, 0],
+    ]);
+
+    checkRect(nestedNestedArea.rects[0], 'C', 0, 0, 0, 0, bladeWidth, 0);
+    checkRect(nestedNestedArea.rects[1], 'C', 0, 65, 0, 0, bladeWidth, 0);
+  });
+
+  it('should pack all items in the most compact way (GT24)', () => {
+    const rects = getRects(testItems.gt24);
+    const grouped = getSheetArea(testItems.gt24);
+
+    new Grouper(bladeWidth).group(rects, grouped);
+
+    checkArea(grouped, 2000, 600, 0, 0, 0, 0, 0, 0, 0, 1);
+    checkRemainingWidth(grouped, [
+      [0, 950],
+      [566, 950],
+      [599, 950],
+      [600, NaN],
+    ]);
+
+    const nestedArea = grouped.nestedAreas[0];
+    checkArea(nestedArea, 1050, 600, 0, 0, 0, bladeWidth, 0, 0, 20, 1);
+    checkRemainingWidth(nestedArea, [
+      [0, 0],
+      [110, 35],
+      [395, 35],
+      [489, 35],
+      [599, 35],
+    ]);
+
+    for (let r = 0; r < 10; r += 1) {
+      checkRect(nestedArea.rects[r], 'D', r * 105, 0, 0, r === 9 ? 0 : bladeWidth, bladeWidth, 0);
+    }
+    for (let r = 10; r < 20; r += 1) {
+      checkRect(
+        nestedArea.rects[r],
+        'D',
+        (r - 10) * 105,
+        55,
+        0,
+        r === 19 ? 0 : bladeWidth,
+        bladeWidth,
+        0,
+      );
+    }
+
+    const nestedArea1 = nestedArea.nestedAreas[0];
+    checkArea(nestedArea1, 1010, 490, 0, 110, 0, bladeWidth, 0, 0, 4, 1);
+    checkRemainingWidth(nestedArea1, [
+      [0, 0],
+      [100, 115],
+      [395, 115],
+      [489, 115],
+    ]);
+
+    checkRect(nestedArea1.rects[0], 'C', 0, 0, 0, bladeWidth, bladeWidth, 0);
+    checkRect(nestedArea1.rects[1], 'C', 505, 0, 0, 0, bladeWidth, 0);
+    checkRect(nestedArea1.rects[2], 'B', 0, 65, 0, bladeWidth, bladeWidth, 0);
+    checkRect(nestedArea1.rects[3], 'B', 505, 65, 0, 0, bladeWidth, 0);
+
+    const nestedArea2 = nestedArea1.nestedAreas[0];
+    checkArea(nestedArea2, 890, 390, 0, 100, 0, bladeWidth, 0, 0, 2, 0);
+    checkRemainingWidth(nestedArea2, [
+      [0, 0],
+      [389, 0],
+    ]);
+
+    checkRect(nestedArea2.rects[0], 'A', 0, 0, 0, bladeWidth, 0, 0);
+    checkRect(nestedArea2.rects[1], 'A', 445, 0, 0, 0, 0, 0);
+  });
+
+  it('should pack all items in the most compact way (GT25)', () => {
+    const rects = getRects(testItems.gt25);
+    const grouped = getSheetArea(testItems.gt25);
+
+    new Grouper(bladeWidth).group(rects, grouped);
+
+    checkArea(grouped, 2000, 600, 0, 0, 0, 0, 0, 0, 0, 1);
+    checkRemainingWidth(grouped, [
+      [0, 950],
+      [566, 950],
+      [599, 950],
+      [600, NaN],
+    ]);
+
+    const nestedArea = grouped.nestedAreas[0];
+    checkArea(nestedArea, 1050, 600, 0, 0, 0, bladeWidth, 0, 0, 20, 1);
+    checkRemainingWidth(nestedArea, [
+      [0, 0],
+      [110, 35],
+      [395, 35],
+      [489, 35],
+      [599, 35],
+    ]);
+
+    for (let r = 0; r < 10; r += 1) {
+      checkRect(nestedArea.rects[r], 'D', r * 105, 0, 0, r === 9 ? 0 : bladeWidth, bladeWidth, 0);
+    }
+    for (let r = 10; r < 20; r += 1) {
+      checkRect(
+        nestedArea.rects[r],
+        'D',
+        (r - 10) * 105,
+        55,
+        0,
+        r === 19 ? 0 : bladeWidth,
+        bladeWidth,
+        0,
+      );
+    }
+
+    const nestedArea1 = nestedArea.nestedAreas[0];
+    checkArea(nestedArea1, 1010, 490, 0, 110, 0, bladeWidth, 0, 0, 4, 2);
+    checkRemainingWidth(nestedArea1, [
+      [0, 0],
+      [100, 0],
+      [155, 115],
+      [395, 115],
+      [489, 115],
+    ]);
+
+    checkRect(nestedArea1.rects[0], 'C', 0, 0, 0, bladeWidth, bladeWidth, 0);
+    checkRect(nestedArea1.rects[1], 'C', 505, 0, 0, 0, bladeWidth, 0);
+    checkRect(nestedArea1.rects[2], 'B', 0, 65, 0, bladeWidth, bladeWidth, 0);
+    checkRect(nestedArea1.rects[3], 'B', 505, 65, 0, 0, bladeWidth, 0);
+
+    const nestedArea2 = nestedArea1.nestedAreas[0];
+    checkArea(nestedArea2, 890, 390, 0, 100, 0, bladeWidth, 0, 0, 2, 0);
+    checkRemainingWidth(nestedArea2, [
+      [0, 0],
+      [389, 0],
+    ]);
+
+    checkRect(nestedArea2.rects[0], 'A', 0, 0, 0, bladeWidth, 0, 0);
+    checkRect(nestedArea2.rects[1], 'A', 445, 0, 0, 0, 0, 0);
+
+    const nestedArea3 = nestedArea1.nestedAreas[1];
+    checkArea(nestedArea3, 115, 55, 890, 100, 0, 0, bladeWidth, 0, 1, 0);
+    checkRemainingWidth(nestedArea3, [
+      [0, 10],
+      [49, 10],
+    ]);
+
+    checkRect(nestedArea3.rects[0], 'D', 0, 0, 0, bladeWidth, 0, 0);
+  });
 });
 
 describe('Grouper for OSB sheets', () => {

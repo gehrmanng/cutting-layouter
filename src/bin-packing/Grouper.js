@@ -283,7 +283,7 @@ export default class Grouper {
         if (sameHeight.length) {
           let combinedWidth = width;
           const combined = [rect];
-          const maxAllowedWidth = Math.min(sheetArea.width, this._maxSingleWidth * 1.5);
+          const maxAllowedWidth = Math.min(sheetArea.width, this._maxSingleWidth * 1.2);
           for (const shr of sameHeight) {
             if (combinedWidth + this._bladeWidth + shr.width <= maxAllowedWidth) {
               combinedWidth = combinedWidth + this._bladeWidth + shr.width;
@@ -296,7 +296,7 @@ export default class Grouper {
 
               if (existingNestedArea || sheetArea.canAdd(combinedWidth, height)) {
                 combined.push(shr);
-                if (combinedWidth > this._maxSingleWidth) {
+                if (combinedWidth >= this._maxSingleWidth) {
                   this._maxSingleWidth = combinedWidth;
                   break;
                 }
@@ -540,7 +540,7 @@ export default class Grouper {
       const newChildren = [...removedChildren, ...rects];
       leftSibling.extendWidth(this._bladeWidth + width);
       newChildren.forEach((r) => {
-        r.sheet = undefined;
+        r.reset();
       });
       if (leftSibling.width > this._maxSingleWidth) {
         this._maxSingleWidth = leftSibling.width;
@@ -564,7 +564,7 @@ export default class Grouper {
     }
 
     removedRects.forEach((r) => {
-      r.sheet = undefined;
+      r.reset();
     });
     this._addNonFullSizeRects(parent, removedRects);
   }

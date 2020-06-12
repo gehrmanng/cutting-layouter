@@ -120,12 +120,24 @@ export const testItems = {
     new Item('E', 100, 50, 20, 9005),
   ],
   gt23: [
+    new Item('A', 900, 600, 1, 9005),
+    new Item('B', 440, 390, 2, 9005),
+    new Item('D', 740, 30, 2, 9005),
+    new Item('C', 700, 60, 2, 9005),
+    new Item('E', 100, 50, 25, 9005),
+  ],
+  gt24: [
     new Item('A', 440, 390, 2, 9005),
     new Item('B', 500, 30, 2, 9005),
     new Item('C', 500, 60, 2, 9005),
     new Item('D', 100, 50, 20, 9005),
   ],
-  sar13: [new Item('A', 100, 50, 1, 9100), new Item('B', 100, 45, 1, 9100)],
+  gt25: [
+    new Item('A', 440, 390, 2, 9005),
+    new Item('B', 500, 30, 2, 9005),
+    new Item('C', 500, 60, 2, 9005),
+    new Item('D', 100, 50, 21, 9005),
+  ],
 };
 
 export const materials = [

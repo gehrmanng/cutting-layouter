@@ -1,8 +1,8 @@
 // Initial state definition
 const initialState = {
   bladeWidth: 5,
-  minItemWidth: 100,
-  minItemHeight: 100,
+  minItemWidth: 1,
+  minItemHeight: 1,
 };
 
 /**
