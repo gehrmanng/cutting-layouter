@@ -400,11 +400,12 @@ export default class SheetArea {
    */
   updateGrid(posY, width, height) {
     for (let i = posY; i < posY + height; i += 1) {
-      if (width < 0) {
-        this._grid[i] += width;
-      } else {
-        this._grid[i] = width;
+      const newValue = width < 0 ? this._grid[i] + width : width;
+      if (newValue < 0) {
+        throw new Error(`Grid value must not be negative but was ${newValue} at ${i}!`);
       }
+
+      this._grid[i] = newValue;
     }
   }
 
@@ -575,8 +576,11 @@ export default class SheetArea {
         (!this._grid[i] || this._grid[i] + width <= this._width) &&
         (!posX || this._grid[i] < posX)
       ) {
-        posX = this._grid[i] || 0;
-        posY = i;
+        const newPosX = Math.max(this._grid[i] || 0, 0);
+        if (!posX || newPosX < posX) {
+          posX = newPosX;
+          posY = i;
+        }
 
         if (!leftMostPosition || posX === 0) {
           break;

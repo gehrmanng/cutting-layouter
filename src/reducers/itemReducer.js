@@ -11,8 +11,8 @@ import { testItems } from '../data/testitemdata';
 const initialState = {
   items: [
     // ...testItems.gt25,
-    // ...osbItems.s6,
-    ...osbItems.gs5,
+    // ...osbItems.s3,
+    ...osbItems.ws5,
 
     // Remove tests
     // new Item('X_A', 400, 100, 1, 10),

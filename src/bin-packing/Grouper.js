@@ -38,17 +38,15 @@ export default class Grouper {
    * @param {boolean} [canRotate=true] Flag indicating if rect rotation is allowed
    */
   group(rects, sheetArea, canRotate = true) {
-    const { width: fullWidth, height: fullHeight } = sheetArea;
+    const { width: sheetWidth, height: sheetHeight } = sheetArea;
 
-    if (!this._maxSingleWidth) {
-      const nonFullWidthRects = rects.filter((r) => r.width < fullWidth);
-      if (nonFullWidthRects.length > 1) {
-        const allHeights = new Set(nonFullWidthRects.map((r) => r.height));
-        if (allHeights.size === 1) {
-          this._maxSingleWidth = fullWidth;
-        } else {
-          this._maxSingleWidth = _.max(nonFullWidthRects.map((r) => r.width));
-        }
+    const nonFullWidthRects = rects.filter((r) => r.width < sheetWidth);
+    if (nonFullWidthRects.length > 1) {
+      const allHeights = new Set(nonFullWidthRects.map((r) => r.height));
+      if (allHeights.size === 1 && (!this._maxSingleWidth || sheetWidth > this._maxSingleWidth)) {
+        this._maxSingleWidth = sheetWidth;
+      } else if (!this._maxSingleWidth) {
+        this._maxSingleWidth = _.max(nonFullWidthRects.map((r) => r.width));
       }
     }
 
@@ -59,15 +57,15 @@ export default class Grouper {
 
     // Add all full height rects to the result as long as they don't exceed the maximum width
     let hasFullHeightFullWidth = false;
-    if (byHeight[fullHeight.toString()]) {
-      const fullHeightRects = byHeight[fullHeight.toString()];
-      const nonFullWidthRects = fullHeightRects.filter((r) => r.width < fullWidth);
-      hasFullHeightFullWidth = nonFullWidthRects.length !== fullHeightRects;
+    if (byHeight[sheetHeight.toString()]) {
+      const fullHeightRects = byHeight[sheetHeight.toString()];
+      const nonFullWidthFullHeightRects = fullHeightRects.filter((r) => r.width < sheetWidth);
+      hasFullHeightFullWidth = nonFullWidthFullHeightRects.length !== fullHeightRects;
       const remaining = this._addFullHeightRects(
         sheetArea,
-        nonFullWidthRects,
-        fullWidth,
-        fullHeight,
+        nonFullWidthFullHeightRects,
+        sheetWidth,
+        sheetHeight,
       );
       notAdded.push(...remaining);
     }
@@ -75,7 +73,7 @@ export default class Grouper {
     // Retrieve the remaining non full height heights
     const remainingHeights = Object.keys(byHeight)
       .map((h) => parseInt(h, 10))
-      .filter((h) => h < fullHeight || (hasFullHeightFullWidth && h === fullHeight));
+      .filter((h) => h < sheetHeight || (hasFullHeightFullWidth && h === sheetHeight));
 
     if (!remainingHeights.length) {
       return notAdded;
@@ -83,8 +81,8 @@ export default class Grouper {
 
     const nonFullHeightRectsByHeight = {};
     remainingHeights.forEach((h) => {
-      if (h === fullHeight) {
-        nonFullHeightRectsByHeight[h] = byHeight[h].filter((r) => r.width === fullWidth);
+      if (h === sheetHeight) {
+        nonFullHeightRectsByHeight[h] = byHeight[h].filter((r) => r.width === sheetWidth);
       } else {
         nonFullHeightRectsByHeight[h] = byHeight[h];
       }
@@ -98,7 +96,7 @@ export default class Grouper {
 
     let remainingPosY = -1;
     let remainingWidth;
-    for (let i = 0; i < fullHeight; i += 1) {
+    for (let i = 0; i < sheetHeight; i += 1) {
       remainingWidth = sheetArea.getRemainingWidth(i);
       if (remainingWidth > 0) {
         remainingPosY = i;
@@ -279,7 +277,9 @@ export default class Grouper {
       }
 
       if (width < this._maxSingleWidth) {
-        const sameHeight = sorted.slice(index + 1).filter((r) => r.height === height);
+        const sameHeight = sorted
+          .slice(index + 1)
+          .filter((r) => r.height === height && typeof r.sheet === 'undefined');
         if (sameHeight.length) {
           let combinedWidth = width;
           const combined = [rect];
@@ -297,7 +297,6 @@ export default class Grouper {
               if (existingNestedArea || sheetArea.canAdd(combinedWidth, height)) {
                 combined.push(shr);
                 if (combinedWidth >= this._maxSingleWidth) {
-                  this._maxSingleWidth = combinedWidth;
                   break;
                 }
               } else {
@@ -542,9 +541,6 @@ export default class Grouper {
       newChildren.forEach((r) => {
         r.reset();
       });
-      if (leftSibling.width > this._maxSingleWidth) {
-        this._maxSingleWidth = leftSibling.width;
-      }
       this.group(newChildren, leftSibling);
       return true;
     }
