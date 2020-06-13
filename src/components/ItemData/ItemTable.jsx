@@ -49,7 +49,7 @@ const ItemTable = ({ onEdit, items, materials, dispatch }) => {
    *
    * @param {string} itemId The id of the item that should be deleted
    */
-  const handleDelete = itemId => () => {
+  const handleDelete = (itemId) => () => {
     dispatch(removeItem(itemId));
   };
 
@@ -58,29 +58,30 @@ const ItemTable = ({ onEdit, items, materials, dispatch }) => {
    *
    * @param {Item} item The item to be edited
    */
-  const handleEdit = item => () => {
+  const handleEdit = (item) => () => {
     onEdit(item);
   };
 
-  const getMaterial = item => {
+  const getMaterial = (item) => {
     if (!item || !item.material) {
       return '';
     }
 
-    const material = materials.filter(m => m.id === item.material).pop();
+    const material = materials.filter((m) => m.id === item.material).pop();
     return `${material.name} (${material.width} x ${material.height} x ${material.thickness}mm)`;
   };
 
-  const renderSheetNumber = item => {
-    if (typeof item.sheet === 'undefined') {
+  const renderSheetNumber = (item) => {
+    if (!item.sheet.length) {
       return '--';
     }
 
-    if (item.sheet >= 0) {
-      return <I18n i18nKey="ItemDataCard.ItemTable.sheetNumber" vars={{ sheet: item.sheet }} />;
-    }
-
-    return <I18n i18nKey="ItemDataCard.ItemTable.multipleSheets" />;
+    return (
+      <I18n
+        i18nKey="ItemDataCard.ItemTable.sheetNumber"
+        vars={{ sheet: item.sheet.map((s) => s + 1).join(', ') }}
+      />
+    );
   };
 
   return (
@@ -109,7 +110,7 @@ const ItemTable = ({ onEdit, items, materials, dispatch }) => {
         </TableRow>
       </TableHead>
       <TableBody>
-        {items.map(item => (
+        {items.map((item) => (
           <TableRow key={item._name}>
             <TableCell component="th" scope="row">
               {item._name}
@@ -159,7 +160,7 @@ ItemTable.defaultProps = {
  *
  * @param {object} state The Redux state
  */
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   items: state.itemReducer.items,
   materials: state.materialReducer.materials,
 });

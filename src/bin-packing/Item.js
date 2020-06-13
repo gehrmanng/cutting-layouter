@@ -37,7 +37,7 @@ export default class Item {
     this._dimensions = Rect.create(name, width, height);
     this._quantity = quantity;
     this._material = material;
-    this._sheet = undefined;
+    this._sheet = [];
     this._color = `hsla(${Math.random() * 360}, 100%, 50%, 0.5)`;
   }
 

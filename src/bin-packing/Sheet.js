@@ -47,19 +47,20 @@ export default class Sheet {
    * @return {Array.<Item>} All remaining items
    */
   pack(rects) {
-    const remainingRects = this._grouper.group(rects, this._sheetArea);
-
-    return remainingRects;
+    return this._grouper.group(rects, this._sheetArea);
   }
 
   /**
-   * **************************
+   * Get the IDs of all packed items.
+   *
+   * @return {Set} A set of item IDs
    */
+  getItemIds() {
+    return new Set(SheetArea.getRects(this._sheetArea).map((r) => r.itemId));
+  }
+
   /**
    * *** Getters & Setters ****
-   */
-  /**
-   * **************************
    */
 
   get height() {

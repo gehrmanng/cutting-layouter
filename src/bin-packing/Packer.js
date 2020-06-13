@@ -57,10 +57,6 @@ export default class Packer {
         }
       });
 
-    // const rectsByItem = _.groupBy(
-    //   allRects.filter((r) => typeof r.sheet !== 'undefined'),
-    //   'itemId',
-    // );
     let remainingRects = [];
 
     do {
@@ -76,21 +72,19 @@ export default class Packer {
       this._sheets.push(sheet);
       this._sheetCounter += 1;
 
+      const usedItemIds = sheet.getItemIds();
+      usedItemIds.forEach((id) => {
+        const item = items.find((i) => i.id === id);
+        if (item) {
+          item.sheet.push(sheet.sheetNumber);
+        }
+      });
+
       if (stillRemainingRects.length !== remainingRects.length) {
         remainingRects = stillRemainingRects;
       } else {
         break;
       }
     } while (remainingRects.length > 0);
-
-    // Object.entries(rectsByItem).forEach(([itemId, rects]) => {
-    //   const item = items.filter((i) => i.id === itemId).pop();
-    //   const sheetNumbers = new Set(rects.map((r) => r.sheet));
-    //   if (sheetNumbers.length > 1) {
-    //     item.sheet = -1;
-    //   } else {
-    //     [item.sheet] = sheetNumbers;
-    //   }
-    // });
   }
 }

@@ -14,7 +14,6 @@
     "ItemTable": {
       "height": "Height",
       "material": "Material",
-      "multipleSheets": "Multiple sheets",
       "name": "Name",
       "quantity": "Quantity",
       "sheet": "Sheet",
