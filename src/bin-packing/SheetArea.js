@@ -33,10 +33,8 @@ export default class SheetArea {
     this._id = uuid();
     this._bladeWidth = bladeWidth;
     this._cuttingWidth = {
-      top: 0,
       right: 0,
       bottom: 0,
-      left: 0,
     };
     this._height = height;
     this._maxHeight = maxHeight || height;
@@ -405,7 +403,9 @@ export default class SheetArea {
         throw new Error(`Grid value must not be negative but was ${newValue} at ${i}!`);
       }
 
-      this._grid[i] = newValue;
+      if (!this._grid[i] || width < 0 || newValue > this._grid[i]) {
+        this._grid[i] = newValue;
+      }
     }
   }
 
@@ -430,11 +430,11 @@ export default class SheetArea {
   }
 
   get fullHeight() {
-    return this._cuttingWidth.top + this._height + this._cuttingWidth.bottom;
+    return this._height + this._cuttingWidth.bottom;
   }
 
   get fullWidth() {
-    return this._cuttingWidth.left + this._width + this._cuttingWidth.right;
+    return this._width + this._cuttingWidth.right;
   }
 
   get height() {
@@ -569,17 +569,29 @@ export default class SheetArea {
     let posX;
     let posY;
     const usedHeight = useCurrentHeight ? this._height : this._maxHeight;
+    let movedRight = 0;
 
     for (let i = 0; i < usedHeight; i += 1) {
       if (
         i + height <= usedHeight &&
-        (!this._grid[i] || this._grid[i] + width <= this._width) &&
+        (!this._grid[i] || this._grid[i] + movedRight + width <= this._width) &&
         (!posX || this._grid[i] < posX)
       ) {
-        const newPosX = Math.max(this._grid[i] || 0, 0);
+        const newPosX = Math.max(this._grid[i] || 0, 0) + movedRight;
         if (!posX || newPosX < posX) {
-          posX = newPosX;
-          posY = i;
+          if (this._checkAvailableHeight(newPosX, i, height)) {
+            posX = newPosX;
+            posY = i;
+          } else {
+            for (let w = newPosX + 1; w < this._width; w += 1) {
+              if (this._checkAvailableHeight(w, i, height)) {
+                posX = w;
+                posY = i;
+                movedRight = w - newPosX;
+                break;
+              }
+            }
+          }
         }
 
         if (!leftMostPosition || posX === 0) {
@@ -589,6 +601,16 @@ export default class SheetArea {
     }
 
     return [posX, posY];
+  }
+
+  _checkAvailableHeight(posX, posY, height) {
+    for (let i = posY + 1; i < height; i += 1) {
+      if (this._grid[i] > posX) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   /**

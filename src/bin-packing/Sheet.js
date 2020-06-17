@@ -56,7 +56,7 @@ export default class Sheet {
    * @return {Set} A set of item IDs
    */
   getItemIds() {
-    return new Set(SheetArea.getRects(this._sheetArea).map((r) => r.itemId));
+    return SheetArea.getRects(this._sheetArea).map((r) => r.itemId);
   }
 
   /**

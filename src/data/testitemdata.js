@@ -153,6 +153,8 @@ export const materials = [
   new Material(10, 'Remove Test Material', 600, 200, 10),
   new Material(11, 'OSB Verlegeplatte', 2040, 665, 12, true),
   new Material(12, 'OSB Verlegeplatte', 2040, 665, 15, true),
+  new Material(13, 'OSB Verlegeplatte 62,5', 2040, 620, 12, true),
+  new Material(14, 'OSB Verlegeplatte 62,5', 2040, 620, 15, true),
   new Material(9001, 'TM1', 610, 100, 12),
   new Material(9002, 'TM2', 700, 100, 12),
   new Material(9003, 'TM3', 613, 100, 12),

@@ -29,7 +29,9 @@ const useStyles = makeStyles({
   actionColumn: {
     width: 130,
   },
-  table: {},
+  noWrap: {
+    whiteSpace: 'nowrap',
+  },
 });
 
 /**
@@ -100,6 +102,9 @@ const ItemTable = ({ onEdit, items, materials, dispatch }) => {
           <TableCell align="center">
             <I18n i18nKey="ItemDataCard.ItemTable.quantity" />
           </TableCell>
+          <TableCell align="center">
+            <I18n i18nKey="ItemDataCard.ItemTable.placed" />
+          </TableCell>
           <TableCell>
             <I18n i18nKey="ItemDataCard.ItemTable.material" />
           </TableCell>
@@ -115,15 +120,16 @@ const ItemTable = ({ onEdit, items, materials, dispatch }) => {
             <TableCell component="th" scope="row">
               {item._name}
             </TableCell>
-            <TableCell align="right">
+            <TableCell align="right" className={classes.noWrap}>
               {item.width}
               <I18n i18nKey="global.unit.mm" />
             </TableCell>
-            <TableCell align="right">
+            <TableCell align="right" className={classes.noWrap}>
               {item.height}
               <I18n i18nKey="global.unit.mm" />
             </TableCell>
             <TableCell align="center">{item.quantity}</TableCell>
+            <TableCell align="center">{item.placed}</TableCell>
             <TableCell>{getMaterial(item)}</TableCell>
             <TableCell>{renderSheetNumber(item)}</TableCell>
             <TableCell align="right" className={classes.actionColumn}>

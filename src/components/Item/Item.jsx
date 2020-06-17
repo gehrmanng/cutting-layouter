@@ -10,10 +10,11 @@ import { Rect } from '../../bin-packing';
 const useStyles = makeStyles((theme) => ({
   item: {
     position: 'absolute',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
     fontSize: 18,
+    textOverflow: 'ellipsis',
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+    textAlign: 'center',
 
     '&:hover': {
       backgroundColor: '#CCC !important',
@@ -38,12 +39,11 @@ const Item = ({ rect, scale }) => {
   const style = {
     width: Math.round(rect.width * scale),
     height: Math.round(rect.height * scale),
+    lineHeight: `${Math.round(rect.height * scale)}px`,
     top: Math.round(rect.posY * scale),
     left: Math.round(rect.posX * scale),
-    borderTop: `${Math.round(rect.cuttingWidth.top * scale)}px solid black`,
     borderRight: `${Math.round(rect.cuttingWidth.right * scale)}px solid black`,
     borderBottom: `${Math.round(rect.cuttingWidth.bottom * scale)}px solid black`,
-    borderLeft: `${Math.round(rect.cuttingWidth.left * scale)}px solid black`,
     backgroundColor: rect.color,
   };
 

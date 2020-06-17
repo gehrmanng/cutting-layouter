@@ -10,9 +10,10 @@ import { testItems } from '../data/testitemdata';
 // Initial state definition
 const initialState = {
   items: [
-    // ...testItems.gt25,
-    // ...osbItems.s3,
-    ...osbItems.ws5,
+    ...testItems.gt23,
+    // ...osbItems.stf1,
+    // ...osbItems.ws5,
+    // ...osbItems.werkstattschrank62,
 
     // Remove tests
     // new Item('X_A', 400, 100, 1, 10),

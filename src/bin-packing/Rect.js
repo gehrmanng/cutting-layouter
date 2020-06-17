@@ -39,10 +39,8 @@ export default class Rect {
     this._width = width;
     this._index = index;
     this._cuttingWidth = {
-      top: 0,
       right: 0,
       bottom: 0,
-      left: 0,
     };
     this._sheet = undefined;
     this._parent = undefined;
@@ -92,11 +90,11 @@ export default class Rect {
   }
 
   get fullWidth() {
-    return this._cuttingWidth.left + this._width + this._cuttingWidth.right;
+    return this._width + this._cuttingWidth.right;
   }
 
   get fullHeight() {
-    return this._cuttingWidth.top + this._height + this._cuttingWidth.bottom;
+    return this._height + this._cuttingWidth.bottom;
   }
 
   get height() {

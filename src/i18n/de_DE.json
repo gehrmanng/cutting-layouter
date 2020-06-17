@@ -15,6 +15,7 @@
       "height": "Breite",
       "material": "Material",
       "name": "Name",
+      "placed": "Platziert",
       "quantity": "Anzahl",
       "sheet": "Platte",
       "sheetNumber": "Platte _sheet_",

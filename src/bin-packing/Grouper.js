@@ -60,7 +60,7 @@ export default class Grouper {
     if (byHeight[sheetHeight.toString()]) {
       const fullHeightRects = byHeight[sheetHeight.toString()];
       const nonFullWidthFullHeightRects = fullHeightRects.filter((r) => r.width < sheetWidth);
-      hasFullHeightFullWidth = nonFullWidthFullHeightRects.length !== fullHeightRects;
+      hasFullHeightFullWidth = nonFullWidthFullHeightRects.length !== fullHeightRects.length;
       const remaining = this._addFullHeightRects(
         sheetArea,
         nonFullWidthFullHeightRects,
@@ -233,7 +233,10 @@ export default class Grouper {
 
     const allRects = Object.values(rectsByHeight).flat();
     const fullWidthRects = allRects.filter(
-      (r) => r.width === remainingWidth || r.width + this._bladeWidth >= remainingWidth,
+      (r) =>
+        r.width === remainingWidth ||
+        (r.width + this._bladeWidth >= remainingWidth &&
+          r.width + this._bladeWidth <= remainingWidth + this._bladeWidth),
     );
 
     const remainingRects = allRects.filter(

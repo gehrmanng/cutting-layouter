@@ -48,16 +48,16 @@ export default class Packer {
       (i) => i.height > material.height || i.width > material.width,
     );
 
-    const allRects = [];
+    let remainingRects = [];
     items
       .filter((i) => i.height <= material.height && i.width <= material.width)
       .forEach((item) => {
         for (let i = 0; i < item.quantity; i += 1) {
-          allRects.push(new Rect(item.id, item.width, item.height, 0, 0, item.name, item.color, i));
+          remainingRects.push(
+            new Rect(item.id, item.width, item.height, 0, 0, item.name, item.color, i),
+          );
         }
       });
-
-    let remainingRects = [];
 
     do {
       const sheet = new Sheet(
@@ -68,15 +68,18 @@ export default class Packer {
         5,
         material,
       );
-      const stillRemainingRects = sheet.pack(allRects);
+      const stillRemainingRects = sheet.pack(remainingRects);
       this._sheets.push(sheet);
       this._sheetCounter += 1;
 
       const usedItemIds = sheet.getItemIds();
-      usedItemIds.forEach((id) => {
-        const item = items.find((i) => i.id === id);
-        if (item) {
-          item.sheet.push(sheet.sheetNumber);
+      items.forEach((item) => {
+        const used = usedItemIds.filter((id) => id === item.id);
+        if (used.length) {
+          if (!item.sheet.includes(sheet.sheetNumber)) {
+            item.sheet.push(sheet.sheetNumber);
+            item.addPlaced(used.length);
+          }
         }
       });
 

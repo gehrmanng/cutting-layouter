@@ -39,6 +39,7 @@ export default class Item {
     this._material = material;
     this._sheet = [];
     this._color = `hsla(${Math.random() * 360}, 100%, 50%, 0.5)`;
+    this._placed = 0;
   }
 
   serialize() {
@@ -54,6 +55,10 @@ export default class Item {
 
   static deserialize(obj) {
     return new Item(obj.name, obj.width, obj.height, obj.quantity, obj.material, obj.id);
+  }
+
+  addPlaced(value) {
+    this._placed += value;
   }
 
   /**
@@ -100,6 +105,14 @@ export default class Item {
 
   set name(name) {
     this._name = name;
+  }
+
+  get placed() {
+    return this._placed;
+  }
+
+  set placed(placed) {
+    this._placed = placed;
   }
 
   get quantity() {

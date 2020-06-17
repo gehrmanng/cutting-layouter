@@ -35,10 +35,8 @@ const ItemContainer = ({ sheetArea, scale }) => {
     height: Math.round(sheetArea.height * scale),
     top: Math.round(sheetArea.posY * scale),
     left: Math.round(sheetArea.posX * scale),
-    borderTop: `${Math.round(sheetArea.cuttingWidth.top * scale)}px solid black`,
     borderRight: `${Math.round(sheetArea.cuttingWidth.right * scale)}px solid black`,
     borderBottom: `${Math.round(sheetArea.cuttingWidth.bottom * scale)}px solid black`,
-    borderLeft: `${Math.round(sheetArea.cuttingWidth.left * scale)}px solid black`,
   };
 
   return (

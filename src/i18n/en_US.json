@@ -15,6 +15,7 @@
       "height": "Height",
       "material": "Material",
       "name": "Name",
+      "placed": "Placed",
       "quantity": "Quantity",
       "sheet": "Sheet",
       "sheetNumber": "Sheet _sheet_",
