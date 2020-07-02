@@ -59,6 +59,16 @@ export default class Rect {
     };
   }
 
+  rotate() {
+    if (typeof this._sheet !== 'undefined') {
+      return;
+    }
+
+    const widthBuffer = this._width;
+    this._width = this._height;
+    this._height = widthBuffer;
+  }
+
   /**
    * **************************
    */

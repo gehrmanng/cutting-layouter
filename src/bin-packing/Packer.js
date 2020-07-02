@@ -44,10 +44,6 @@ export default class Packer {
    * @param {Array.<Item>} items All layout items with the given sheet material
    */
   _packByMaterial(material, items) {
-    const notAddedItems = items.filter(
-      (i) => i.height > material.height || i.width > material.width,
-    );
-
     let remainingRects = [];
     items
       .filter((i) => i.height <= material.height && i.width <= material.width)
@@ -68,6 +64,7 @@ export default class Packer {
         5,
         material,
       );
+
       const stillRemainingRects = sheet.pack(remainingRects);
       this._sheets.push(sheet);
       this._sheetCounter += 1;

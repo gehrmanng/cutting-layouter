@@ -21,7 +21,7 @@ import { Item, Material } from '../../bin-packing';
 import { removeItem } from '../../actions/itemActions';
 
 // Styling definitions
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   root: {
     width: '100%',
     overflowX: 'auto',
@@ -32,7 +32,10 @@ const useStyles = makeStyles({
   noWrap: {
     whiteSpace: 'nowrap',
   },
-});
+  error: {
+    color: theme.palette.error.dark,
+  },
+}));
 
 /**
  * A functional component that renders a table containing all available layout items.
@@ -102,9 +105,6 @@ const ItemTable = ({ onEdit, items, materials, dispatch }) => {
           <TableCell align="center">
             <I18n i18nKey="ItemDataCard.ItemTable.quantity" />
           </TableCell>
-          <TableCell align="center">
-            <I18n i18nKey="ItemDataCard.ItemTable.placed" />
-          </TableCell>
           <TableCell>
             <I18n i18nKey="ItemDataCard.ItemTable.material" />
           </TableCell>
@@ -117,21 +117,40 @@ const ItemTable = ({ onEdit, items, materials, dispatch }) => {
       <TableBody>
         {items.map((item) => (
           <TableRow key={item._name}>
-            <TableCell component="th" scope="row">
+            <TableCell
+              scope="row"
+              classes={{ root: item.placed < item.quantity ? classes.error : '' }}
+            >
               {item._name}
             </TableCell>
-            <TableCell align="right" className={classes.noWrap}>
+            <TableCell
+              align="right"
+              className={classes.noWrap}
+              classes={{ root: item.placed < item.quantity ? classes.error : '' }}
+            >
               {item.width}
               <I18n i18nKey="global.unit.mm" />
             </TableCell>
-            <TableCell align="right" className={classes.noWrap}>
+            <TableCell
+              align="right"
+              className={classes.noWrap}
+              classes={{ root: item.placed < item.quantity ? classes.error : '' }}
+            >
               {item.height}
               <I18n i18nKey="global.unit.mm" />
             </TableCell>
-            <TableCell align="center">{item.quantity}</TableCell>
-            <TableCell align="center">{item.placed}</TableCell>
-            <TableCell>{getMaterial(item)}</TableCell>
-            <TableCell>{renderSheetNumber(item)}</TableCell>
+            <TableCell
+              align="center"
+              classes={{ root: item.placed < item.quantity ? classes.error : '' }}
+            >
+              {item.quantity}
+            </TableCell>
+            <TableCell classes={{ root: item.placed < item.quantity ? classes.error : '' }}>
+              {getMaterial(item)}
+            </TableCell>
+            <TableCell classes={{ root: item.placed < item.quantity ? classes.error : '' }}>
+              {renderSheetNumber(item)}
+            </TableCell>
             <TableCell align="right" className={classes.actionColumn}>
               <IconButton onClick={handleEdit(item)}>
                 <Icon>edit</Icon>

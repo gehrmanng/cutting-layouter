@@ -47,7 +47,7 @@ export default class Sheet {
    * @return {Array.<Item>} All remaining items
    */
   pack(rects) {
-    return this._grouper.group(rects, this._sheetArea);
+    return this._grouper.group(rects, this._sheetArea, !this._material.hasGrain);
   }
 
   /**

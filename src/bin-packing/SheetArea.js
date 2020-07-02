@@ -66,6 +66,7 @@ export default class SheetArea {
     this._setCuttings(newNestedArea);
     this._nestedAreas.push(newNestedArea);
     this.updateGrid(posY, newNestedArea.rightPosition, newNestedArea.fullHeight);
+    this._updateTopSiblings(posX, posY, newNestedArea.rightPosition);
 
     return newNestedArea;
   }
@@ -84,6 +85,7 @@ export default class SheetArea {
     this._setCuttings(newRect);
     this._rects.push(newRect);
     this.updateGrid(posY, newRect.posX + newRect.fullWidth, newRect.fullHeight);
+    this._updateTopSiblings(posX, posY, newRect.rightPosition);
   }
 
   /**
@@ -161,12 +163,16 @@ export default class SheetArea {
       }
     }
 
-    const extendedHeight = this._height + extendByHeight;
+    let extendedHeight = this._height + extendByHeight;
+
     if (extendedHeight > this._maxHeight) {
       return false;
     }
 
     if (this._parent) {
+      if (this._parent.cuttingWidth.fixed) {
+        extendedHeight -= this._parent.cuttingWidth.bottom;
+      }
       const parentExtended = this._parent.extendHeightForChild(extendedHeight, this);
       if (!parentExtended) {
         return false;
@@ -246,11 +252,45 @@ export default class SheetArea {
     );
     this._height = newChildBottom;
 
-    if (this._height === this._maxHeight) {
+    if (this._height === this._maxHeight && !this._cuttingWidth.fixed) {
       this._cuttingWidth.bottom = 0;
     }
 
     return true;
+  }
+
+  extendToMaxHeight() {
+    if (this.fullHeight === this._maxHeight) {
+      return;
+    }
+
+    const diff = this._maxHeight - this.fullHeight;
+    const heightExtended = this.extendHeight(diff);
+
+    if (!heightExtended) {
+      return;
+    }
+
+    if (
+      this._parent &&
+      this.bottomPosition < this._parent.height &&
+      this._cuttingWidth.bottom < this._bladeWidth
+    ) {
+      const lowestChild = _.max(this.children, (child) => child.bottomPosition);
+      const relevantChildren = this.children.filter(
+        (child) => child.bottomPosition >= lowestChild.bottomPosition - this._bladeWidth,
+      );
+      relevantChildren.forEach((child) => {
+        child.cuttingWidth.bottom = 0;
+      });
+
+      this._height -= this._bladeWidth;
+      this._cuttingWidth.bottom = this._bladeWidth;
+      this._cuttingWidth.fixed = true;
+      relevantChildren.forEach((child) => {
+        this._setCuttings(child);
+      });
+    }
   }
 
   /**
@@ -624,5 +664,32 @@ export default class SheetArea {
       right: Math.min(this._bladeWidth, this._width - (posX + width)),
       bottom: Math.min(this._bladeWidth, this._height - posY - height),
     };
+  }
+
+  _updateTopSiblings(posX, posY, rightPosition) {
+    if (posY === 0 || !this._nestedAreas.length) {
+      return;
+    }
+
+    const topSiblings = this._nestedAreas.filter(
+      (a) => a.rightPosition > posX && a.posX <= rightPosition && a.posY < posY,
+    );
+
+    if (!topSiblings.length) {
+      return;
+    }
+
+    const lowestChildren = [];
+    const siblingsByPosX = _.groupBy(topSiblings, 'posX');
+    Object.values(siblingsByPosX).forEach((sibs) => {
+      lowestChildren.push(_.max(sibs, (s) => s.bottomPosition));
+    });
+
+    lowestChildren.forEach((child) => {
+      if (posY - child.posY < child.height) {
+        throw new Error('MaxHeight must not be smaller than height');
+      }
+      child.maxHeight = posY - child.posY;
+    });
   }
 }

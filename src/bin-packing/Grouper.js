@@ -37,7 +37,7 @@ export default class Grouper {
    * @param {SheetArea} sheetArea The sheet area where the rects should be grouped within
    * @param {boolean} [canRotate=true] Flag indicating if rect rotation is allowed
    */
-  group(rects, sheetArea, canRotate = true) {
+  group(rects, sheetArea, canRotate = true, skipOptimize) {
     const { width: sheetWidth, height: sheetHeight } = sheetArea;
 
     const nonFullWidthRects = rects.filter((r) => r.width < sheetWidth);
@@ -108,11 +108,15 @@ export default class Grouper {
       return notAdded;
     }
 
-    const remainingNonFullSizeRects = this._addNonFullSizeRects(sheetArea, remainingRects);
+    const remainingNonFullSizeRects = this._addNonFullSizeRects(
+      sheetArea,
+      remainingRects,
+      canRotate,
+    );
     notAdded.push(...remainingNonFullSizeRects);
 
     // Optimize the dimensions of each nested area
-    if (!sheetArea.parent) {
+    if (!sheetArea.parent && !skipOptimize) {
       this._optimizeNestedAreaDimensions(sheetArea);
     }
 
@@ -126,7 +130,7 @@ export default class Grouper {
    * @param {SheetArea} parent The parent sheet area
    */
   _optimizeNestedAreaDimensions(parent) {
-    const { nestedAreas, children } = parent;
+    const { nestedAreas, children, width: parentWidth } = parent;
 
     if (!nestedAreas.length) {
       return;
@@ -173,7 +177,14 @@ export default class Grouper {
 
       if (canExtendHeight && canExtendWidth) {
         // If remainingWidth is zero nothing needs to be extended
-        if (remainingWidth > 0 && remainingWidth < remainingHeight) {
+        if (
+          remainingWidth > 0 &&
+          (remainingWidth < remainingHeight ||
+            (area.children.length > 1 &&
+              new Set(area.children.map((c) => c.height)).size === 1 &&
+              new Set(area.children.map((c) => c.posY)).size === 1 &&
+              width >= parentWidth * 0.9))
+        ) {
           // If remainingWidth is above zero but smaller than the remaining height the width should be extended
           area.extendWidth(remainingWidth + area.cuttingWidth.right);
           area.cuttingWidth.right = 0;
@@ -182,6 +193,10 @@ export default class Grouper {
           area.extendHeight(remainingHeight);
           area.cuttingWidth.bottom = 0;
         }
+      }
+
+      if (!canExtendHeight && area.fullHeight < area.maxHeight && area.fullWidth < parentWidth) {
+        area.extendToMaxHeight();
       }
 
       // Re-run the optimization for any nested areas
@@ -267,7 +282,7 @@ export default class Grouper {
    * @param {object} groupsByHeight All remaining rects grouped by their height and the maximum
    *                                available width
    */
-  _addNonFullSizeRects(sheetArea, remainingRects) {
+  _addNonFullSizeRects(sheetArea, remainingRects, canRotate) {
     const notAddedRects = [];
 
     const sorted = Sorter.sort(remainingRects);
@@ -322,7 +337,12 @@ export default class Grouper {
               existingNestedArea,
             );
             if (notAddedSingleRect.length) {
-              notAddedRects.push(...notAddedSingleRect);
+              if (canRotate) {
+                const stillRemaining = this._rotateAndTryAgain(notAddedSingleRect, sheetArea);
+                notAddedRects.push(...stillRemaining);
+              } else {
+                notAddedRects.push(...notAddedSingleRect);
+              }
             }
 
             return;
@@ -340,7 +360,12 @@ export default class Grouper {
         existingNestedArea,
       );
       if (notAddedSingleRect.length) {
-        notAddedRects.push(...notAddedSingleRect);
+        if (canRotate) {
+          const stillRemaining = this._rotateAndTryAgain(notAddedSingleRect, sheetArea);
+          notAddedRects.push(...stillRemaining);
+        } else {
+          notAddedRects.push(...notAddedSingleRect);
+        }
       }
     });
 
@@ -634,5 +659,30 @@ export default class Grouper {
     }
 
     return matchingNestedArea;
+  }
+
+  _rotateAndTryAgain(rects, sheetArea) {
+    let parent;
+    while (sheetArea.parent) {
+      parent = sheetArea.parent;
+    }
+    if (!parent) {
+      parent = sheetArea;
+    }
+
+    const rotatable = rects.filter((r) => r.width <= parent.height);
+    rotatable.forEach((r) => {
+      r.rotate();
+    });
+
+    const stillRemaining = this.group(rotatable, parent, false, true);
+    stillRemaining.forEach((r) => {
+      r.rotate();
+    });
+
+    return [
+      ...stillRemaining,
+      ...rects.filter((r) => !rotatable.map((rot) => rot.id).includes(r.id)),
+    ];
   }
 }
