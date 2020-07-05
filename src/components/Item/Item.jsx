@@ -10,15 +10,33 @@ import { Rect } from '../../bin-packing';
 const useStyles = makeStyles((theme) => ({
   item: {
     position: 'absolute',
-    fontSize: 18,
+    fontSize: 16,
     textOverflow: 'ellipsis',
     overflow: 'hidden',
-    whiteSpace: 'nowrap',
     textAlign: 'center',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
 
     '&:hover': {
       backgroundColor: '#CCC !important',
     },
+  },
+  width: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: 20,
+    lineHeight: '20px',
+    textAlign: 'center',
+    fontSize: 12,
+  },
+  height: {
+    position: 'absolute',
+    left: 0,
+    transform: 'rotate(-90deg)',
+    fontSize: 12,
   },
 }));
 
@@ -39,7 +57,6 @@ const Item = ({ rect, scale }) => {
   const style = {
     width: Math.round(rect.width * scale),
     height: Math.round(rect.height * scale),
-    lineHeight: `${Math.round(rect.height * scale)}px`,
     top: Math.round(rect.posY * scale),
     left: Math.round(rect.posX * scale),
     borderRight: `${Math.round(rect.cuttingWidth.right * scale)}px solid black`,
@@ -55,9 +72,10 @@ const Item = ({ rect, scale }) => {
       data-height={rect.height}
       data-posx={rect.posX}
       data-posy={rect.posY}
-      data-cuts={rect.numberOfCuts}
-    >
-      {`${rect.name}${rect.index + 1}`}
+      data-cuts={rect.numberOfCuts}>
+      <span className={classes.width}>{rect.width}</span>
+      <span className={classes.name}>{`${rect.name}`}</span>
+      <span className={classes.height}>{rect.height}</span>
     </div>
   );
 };
