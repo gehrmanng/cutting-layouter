@@ -117,7 +117,7 @@ export default class Grouper {
 
     // Optimize the dimensions of each nested area
     if (!sheetArea.parent && !skipOptimize) {
-      this._optimizeNestedAreaDimensions(sheetArea);
+      this._optimizeNestedAreaDimensions(sheetArea, canRotate);
     }
 
     return notAdded;
@@ -128,8 +128,9 @@ export default class Grouper {
    * height.
    *
    * @param {SheetArea} parent The parent sheet area
+   * @param {boolean} canRotate Flag indicating if rect rotation is allowed
    */
-  _optimizeNestedAreaDimensions(parent) {
+  _optimizeNestedAreaDimensions(parent, canRotate) {
     const { nestedAreas, children, width: parentWidth } = parent;
 
     if (!nestedAreas.length) {
@@ -145,10 +146,10 @@ export default class Grouper {
         children.filter((c) => c.posX < rightPosition && c.rightPosition > posX && c.posY > posY)
           .length > 0;
       // Has a child beside if any child starts right to the end and has a Y position between top and bottom
-      const hasBeside =
-        children.filter(
-          (c) => c.posX >= rightPosition && c.posY >= posY && c.posY <= bottomPosition,
-        ).length > 0;
+      const siblingsBeside = children.filter(
+        (c) => c.posX >= rightPosition && c.posY < bottomPosition && c.bottomPosition > posY,
+      );
+      const hasBeside = siblingsBeside.length > 0;
       const hasMaxWidthRects =
         rects.length && rects.filter((r) => r.rightPosition === width).length > 0;
       const canExtendWidth =
@@ -197,6 +198,20 @@ export default class Grouper {
 
       if (!canExtendHeight && area.fullHeight < area.maxHeight && area.fullWidth < parentWidth) {
         area.extendToMaxHeight();
+      }
+
+      if (hasBeside) {
+        const firstPosXBeside = _.min(siblingsBeside.map((c) => c.posX));
+        const gap = firstPosXBeside - rightPosition;
+        if (gap > 0) {
+          if (gap <= this._bladeWidth * 2) {
+            area.cuttingWidth.right += gap;
+          } else {
+            const removedRects = area.removeChildren();
+            area.extendWidth(gap);
+            this.group(removedRects, area, canRotate);
+          }
+        }
       }
 
       // Re-run the optimization for any nested areas
