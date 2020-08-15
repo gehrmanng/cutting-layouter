@@ -65,7 +65,8 @@ const ItemTableHead = ({ order, orderBy, onRequestSort }) => {
       <TableSortLabel
         active={orderBy === headCell.id}
         direction={orderBy === headCell.id ? order : 'asc'}
-        onClick={createSortHandler(headCell.id)}>
+        onClick={createSortHandler(headCell.id)}
+      >
         {!headCell.skipLabel ? <I18n i18nKey={`ItemDataCard.ItemTable.${headCell.id}`} /> : null}
         {orderBy === headCell.id ? (
           <span className={classes.visuallyHidden}>
