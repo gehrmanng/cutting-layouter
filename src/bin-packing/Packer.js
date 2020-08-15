@@ -48,6 +48,7 @@ export default class Packer {
     items
       .filter((i) => i.height <= material.height && i.width <= material.width)
       .forEach((item) => {
+        item.sheet = [];
         for (let i = 0; i < item.quantity; i += 1) {
           remainingRects.push(
             new Rect(item.id, item.width, item.height, 0, 0, item.name, item.color, i),

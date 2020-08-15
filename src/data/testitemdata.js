@@ -138,6 +138,19 @@ export const testItems = {
     new Item('C', 500, 60, 2, 9005),
     new Item('D', 100, 50, 21, 9005),
   ],
+  //
+  sw1: [
+    new Item('A', 600, 300, 1, 9101),
+    new Item('B', 50, 1100, 1, 9101),
+    new Item('C', 250, 200, 2, 9101),
+    new Item('D', 400, 200, 1, 9101),
+  ],
+  sw2: [
+    new Item('A', 600, 300, 1, 9101),
+    new Item('B', 50, 1100, 1, 9101),
+    new Item('C', 200, 250, 2, 9101),
+    new Item('D', 200, 400, 1, 9101),
+  ],
 };
 
 export const materials = [
@@ -166,6 +179,7 @@ export const materials = [
   new Material(9009, 'TM9', 2500, 1250, 12),
   new Material(9010, 'TM10', 740, 205, 12),
   new Material(9100, 'TM100', 100, 100, 12),
+  new Material(9101, 'TM101', 600, 1500, 12),
 ];
 
 export const getRects = (items) => {

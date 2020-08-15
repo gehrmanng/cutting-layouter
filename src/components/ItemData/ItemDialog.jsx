@@ -4,20 +4,31 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import {
   Button,
+  Checkbox,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   FormControl,
+  FormControlLabel,
   InputLabel,
   MenuItem,
   TextField,
   Select,
+  makeStyles,
 } from '@material-ui/core';
 import I18n from '@gehrmanng/react-i18n';
 
 // Local data object imports
 import { Item, Material } from '../../bin-packing';
+
+// Styling definitions
+const useStyles = makeStyles((theme) => ({
+  addMore: {
+    flexGrow: 1,
+    marginLeft: 0,
+  },
+}));
 
 /**
  * A functional component that renders a dialog to edit a layout item.
@@ -28,6 +39,8 @@ import { Item, Material } from '../../bin-packing';
  * @return {JSX} The component markup
  */
 const ItemDialog = ({ onClose, open, item, materials, settings }) => {
+  const classes = useStyles();
+
   const initialItem = {
     name: '',
     width: settings.minItemWidth || 1,
@@ -37,6 +50,7 @@ const ItemDialog = ({ onClose, open, item, materials, settings }) => {
   };
   const [values, setValues] = useState(initialItem);
   const [errors, setErrors] = useState({});
+  const [keepDialogOpen, setKeepDialogOpen] = useState(false);
 
   /**
    * A side effect that fills the local form fields with the given item data.
@@ -99,7 +113,11 @@ const ItemDialog = ({ onClose, open, item, materials, settings }) => {
    */
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setValues({ ...values, [name]: value });
+    if (name === 'addMoreCheckbox') {
+      setKeepDialogOpen(!keepDialogOpen);
+    } else {
+      setValues({ ...values, [name]: value });
+    }
   };
 
   /**
@@ -128,7 +146,7 @@ const ItemDialog = ({ onClose, open, item, materials, settings }) => {
         item ? item.id : undefined,
       );
     }
-    onClose(newItem);
+    onClose(newItem, keepDialogOpen);
     setValues(initialItem);
   };
 
@@ -137,6 +155,7 @@ const ItemDialog = ({ onClose, open, item, materials, settings }) => {
    */
   const handleCancel = () => {
     setValues(initialItem);
+    setKeepDialogOpen(false);
     setErrors({});
     onClose();
   };
@@ -216,8 +235,7 @@ const ItemDialog = ({ onClose, open, item, materials, settings }) => {
             name="material"
             labelId="material-label"
             onChange={handleInputChange}
-            value={values.material}
-          >
+            value={values.material}>
             {materials.map((material) => (
               <MenuItem value={material.id} key={material.id}>
                 {`${material.name} (${material.width}x${material.height}x${material.thickness}mm)`}
@@ -227,6 +245,18 @@ const ItemDialog = ({ onClose, open, item, materials, settings }) => {
         </FormControl>
       </DialogContent>
       <DialogActions>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={keepDialogOpen}
+              onChange={handleInputChange}
+              name="addMoreCheckbox"
+              color="primary"
+            />
+          }
+          label={<I18n i18nKey="ItemDataCard.ItemDialog.addMore" />}
+          className={classes.addMore}
+        />
         <Button onClick={handleCancel} color="primary">
           Cancel
         </Button>

@@ -11,10 +11,11 @@ import { testItems } from '../data/testitemdata';
 const initialState = {
   items: [
     // ...testItems.gt18,
+    ...testItems.sw1,
     // ...osbItems.s7,
     // ...osbItems.ws5r,
     // ...osbItems.werkstattschrank62,
-    ...osbItems.werkstattschrank62rotate,
+    // ...osbItems.werkstattschrank62rotate,
 
     // Remove tests
     // new Item('X_A', 400, 100, 1, 10),

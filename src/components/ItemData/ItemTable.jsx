@@ -1,21 +1,15 @@
 // Library imports
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import {
-  Icon,
-  IconButton,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
-  makeStyles,
-} from '@material-ui/core';
-import I18n from '@gehrmanng/react-i18n';
+import { Table, makeStyles } from '@material-ui/core';
+
+// Local component imports
+import ItemTableHead from './ItemTableHead';
+import ItemTableBody from './ItemTableBody';
 
 // Local data object imports
-import { Item, Material } from '../../bin-packing';
+import { Item } from '../../bin-packing';
 
 // Local Redux action imports
 import { removeItem } from '../../actions/itemActions';
@@ -25,15 +19,6 @@ const useStyles = makeStyles((theme) => ({
   root: {
     width: '100%',
     overflowX: 'auto',
-  },
-  actionColumn: {
-    width: 130,
-  },
-  noWrap: {
-    whiteSpace: 'nowrap',
-  },
-  error: {
-    color: theme.palette.error.dark,
   },
 }));
 
@@ -46,8 +31,11 @@ const useStyles = makeStyles((theme) => ({
  * @param {function} dispatch The Redux dispatch function
  * @return {JSX} The component markup
  */
-const ItemTable = ({ onEdit, items, materials, dispatch }) => {
+const ItemTable = ({ onEdit, items, dispatch }) => {
   const classes = useStyles();
+
+  const [order, setOrder] = useState('asc');
+  const [orderBy, setOrderBy] = useState();
 
   /**
    * Click handler that is called when the delete button has been clicked.
@@ -67,101 +55,28 @@ const ItemTable = ({ onEdit, items, materials, dispatch }) => {
     onEdit(item);
   };
 
-  const getMaterial = (item) => {
-    if (!item || !item.material) {
-      return '';
-    }
-
-    const material = materials.filter((m) => m.id === item.material).pop();
-    return `${material.name} (${material.width} x ${material.height} x ${material.thickness}mm)`;
-  };
-
-  const renderSheetNumber = (item) => {
-    if (!item.sheet.length) {
-      return '--';
-    }
-
-    return (
-      <I18n
-        i18nKey="ItemDataCard.ItemTable.sheetNumber"
-        vars={{ sheet: item.sheet.map((s) => s + 1).join(', ') }}
-      />
-    );
+  /**
+   * Set the sort direction and property.
+   *
+   * @param {object} event The click event
+   * @param {string} property The property to sort by
+   */
+  const handleRequestSort = (event, property) => {
+    const isAsc = orderBy === property && order === 'asc';
+    setOrder(isAsc ? 'desc' : 'asc');
+    setOrderBy(property);
   };
 
   return (
     <Table className={classes.table} size="small">
-      <TableHead>
-        <TableRow>
-          <TableCell>
-            <I18n i18nKey="ItemDataCard.ItemTable.name" />
-          </TableCell>
-          <TableCell align="right">
-            <I18n i18nKey="ItemDataCard.ItemTable.width" />
-          </TableCell>
-          <TableCell align="right">
-            <I18n i18nKey="ItemDataCard.ItemTable.height" />
-          </TableCell>
-          <TableCell align="center">
-            <I18n i18nKey="ItemDataCard.ItemTable.quantity" />
-          </TableCell>
-          <TableCell>
-            <I18n i18nKey="ItemDataCard.ItemTable.material" />
-          </TableCell>
-          <TableCell>
-            <I18n i18nKey="ItemDataCard.ItemTable.sheet" />
-          </TableCell>
-          <TableCell className={classes.actionColumn} />
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        {items.map((item) => (
-          <TableRow key={item._name}>
-            <TableCell
-              scope="row"
-              classes={{ root: item.placed < item.quantity ? classes.error : '' }}
-            >
-              {item._name}
-            </TableCell>
-            <TableCell
-              align="right"
-              className={classes.noWrap}
-              classes={{ root: item.placed < item.quantity ? classes.error : '' }}
-            >
-              {item.width}
-              <I18n i18nKey="global.unit.mm" />
-            </TableCell>
-            <TableCell
-              align="right"
-              className={classes.noWrap}
-              classes={{ root: item.placed < item.quantity ? classes.error : '' }}
-            >
-              {item.height}
-              <I18n i18nKey="global.unit.mm" />
-            </TableCell>
-            <TableCell
-              align="center"
-              classes={{ root: item.placed < item.quantity ? classes.error : '' }}
-            >
-              {item.quantity}
-            </TableCell>
-            <TableCell classes={{ root: item.placed < item.quantity ? classes.error : '' }}>
-              {getMaterial(item)}
-            </TableCell>
-            <TableCell classes={{ root: item.placed < item.quantity ? classes.error : '' }}>
-              {renderSheetNumber(item)}
-            </TableCell>
-            <TableCell align="right" className={classes.actionColumn}>
-              <IconButton onClick={handleEdit(item)}>
-                <Icon>edit</Icon>
-              </IconButton>
-              <IconButton onClick={handleDelete(item.id)}>
-                <Icon>delete</Icon>
-              </IconButton>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
+      <ItemTableHead order={order} orderBy={orderBy} onRequestSort={handleRequestSort} />
+      <ItemTableBody
+        items={items}
+        order={order}
+        orderBy={orderBy}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+      />
     </Table>
   );
 };
@@ -171,13 +86,11 @@ ItemTable.propTypes = {
   onEdit: PropTypes.func.isRequired,
   dispatch: PropTypes.func.isRequired,
   items: PropTypes.arrayOf(PropTypes.instanceOf(Item)),
-  materials: PropTypes.arrayOf(PropTypes.instanceOf(Material)),
 };
 
 // Default property values
 ItemTable.defaultProps = {
   items: [],
-  materials: [],
 };
 
 /**
@@ -187,7 +100,6 @@ ItemTable.defaultProps = {
  */
 const mapStateToProps = (state) => ({
   items: state.itemReducer.items,
-  materials: state.materialReducer.materials,
 });
 
 // Export the component as default and connect it to the Redux store

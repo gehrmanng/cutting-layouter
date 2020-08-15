@@ -4,6 +4,7 @@
   },
   "ItemDataCard": {
     "ItemDialog": {
+      "addMore": "Weiteren Zuschnitt hinzufügen",
       "height": "Breite",
       "material": "Material",
       "name": "Name",

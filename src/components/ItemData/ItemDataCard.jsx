@@ -36,7 +36,7 @@ const ItemDataCard = ({ dispatch }) => {
    *
    * @param {Item} item The item to be edited
    */
-  const handleEditClick = item => {
+  const handleEditClick = (item) => {
     setSelectedItem(item);
     setDialogOpen(true);
   };
@@ -47,11 +47,13 @@ const ItemDataCard = ({ dispatch }) => {
    * @param {Item} item The created or updated layout item or undefined if the dialog has been
    *                    canceled
    */
-  const handleCloseDialog = item => {
+  const handleCloseDialog = (item, keepOpen) => {
     if (item) {
       dispatch(selectedItem && item.id === selectedItem.id ? updateItem(item) : addItem(item));
     }
-    setDialogOpen(false);
+    if (!keepOpen) {
+      setDialogOpen(false);
+    }
     setSelectedItem(undefined);
   };
 

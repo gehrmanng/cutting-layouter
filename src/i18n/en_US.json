@@ -4,6 +4,7 @@
   },
   "ItemDataCard": {
     "ItemDialog": {
+      "addMore": "Add another item",
       "height": "Height",
       "material": "Material",
       "name": "Name",
